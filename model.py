@@ -28,14 +28,7 @@ class Model(LLM): #inherits from LLM
         super().__init__()
         self.name = name
         self.vector_store = vector_store
-        self.model = RetrievalQA.from_chain_type(
-            retriever=self.set_retriever(),
-            llm=self.llm,
-            callback_manager=self.callback_manager,
-            chaintype = "stuff", #Processing method of the searched text. other options: map_reduce,refine
-            chain_type_kwargs={'prompt': prompt},
-            verbose=True,
-        )
+        self.model = setmodel()
     
     def getname(self):
         return self.name
@@ -65,6 +58,16 @@ class Model(LLM): #inherits from LLM
             "namespace": getname(),
         }) 
         return retriever
+
+    def setmodel(self):
+        self.model = RetrievalQA.from_chain_type(
+            retriever=self.set_retriever(),
+            llm=self.llm,
+            callback_manager=self.callback_manager,
+            chaintype = "stuff", #Processing method of the searched text. other options: map_reduce,refine
+            chain_type_kwargs={'prompt': prompt_template()},
+            verbose=True,
+        )
     
     def search(self, query):
         docs = set_retriever().invoke(query)
@@ -75,5 +78,5 @@ class Model(LLM): #inherits from LLM
         return self.model.invoke(template)
 
 testModel = LLM()
-prompt = "tell me about National Yang-Ming Chiao Tung University"
+prompt = "tell me about National Yang-Ming Chiao Tung University, NYCU"
 testModel.output(prompt)
