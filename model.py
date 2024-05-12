@@ -33,6 +33,28 @@ class Model(LLM): #inherits from LLM
     def getname(self):
         return self.name
 
+    def set_retriever(self):
+        retriever = self.vector_store.as_retriever(search_kwargs={
+            "k": 10, # number of documents to retrieve
+            "filer": None,
+            "namespace": getname(),
+        }) 
+        return retriever
+
+    def set_model(self):
+        self.model = RetrievalQA.from_chain_type(
+            retriever=self.set_retriever(),
+            llm=self.llm,
+            callback_manager=self.callback_manager,
+            chaintype = "stuff", #Processing method of the searched text. other options: map_reduce,refine
+            chain_type_kwargs={'prompt': prompt_template()},
+            verbose=True,
+        )
+    
+    def output(self, name):
+        template = prompt_template(name)
+        return self.model.invoke(template)
+
     def prompt_template(self):
         # Define the prompt template for the model        
         template = """You are an helpful AI assistant. Your job is to answer the question sent by the user clearly, briefly and concisely.
@@ -48,34 +70,12 @@ class Model(LLM): #inherits from LLM
             template=template,
             input_variables=["context", "name"],
         )
-        #template.format(name = self.name)
+        template.format(name = self.name) #need to check if this is needed
         return template
     
-    def set_retriever(self):
-        retriever = self.vector_store.as_retriever(search_kwargs={
-            "k": 10, # number of documents to retrieve
-            "filer": None,
-            "namespace": getname(),
-        }) 
-        return retriever
-
-    def setmodel(self):
-        self.model = RetrievalQA.from_chain_type(
-            retriever=self.set_retriever(),
-            llm=self.llm,
-            callback_manager=self.callback_manager,
-            chaintype = "stuff", #Processing method of the searched text. other options: map_reduce,refine
-            chain_type_kwargs={'prompt': prompt_template()},
-            verbose=True,
-        )
-    
-    def search(self, query):
+    def search(self, query): #not required
         docs = set_retriever().invoke(query)
         return docs
-
-    def output(self, name):
-        template = prompt_template(name)
-        return self.model.invoke(template)
 
 testModel = LLM()
 prompt = "tell me about National Yang-Ming Chiao Tung University, NYCU"
