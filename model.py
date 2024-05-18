@@ -2,34 +2,71 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from functools import lru_cache
+from llama_cpp import Llama
+import pickle
+import os
 
 class LLM:
     def __init__(self):
         self.model_path = r"llama.cpp/llama-2-7b-chat.Q5_K_M.gguf"
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-        self.llm = LlamaCpp(
+        self.llm = Llama(
             model_path=self.model_path,
             callback_manager=self.callback_manager,
             temperature=0.0,    #randomness
-            n_ctx=512,
+            n_ctx=512, 
             n_batch=512,
             #max_tokens=512,    
             #n_gpu_layers=-1,   #Use GPU acceleration
-            #stop={".", "!", "?"},  #stop token
+            stop = ["."],  #stop token
             top_p=1,            #To increase the freedom of generated text, even when setting the temperature value high, adjusting the top_p parameter can help avoid text degradation.
             verbose=True,       #output 
         )
+  
+        self.cache_path = "cache.pkl"
+        self.cache = {}
+        self.set_cache_path()
+        self.load_cache()
+    
+    def set_cache_path(self):
+        if not os.path.exists(self.cache_path):
+            self.save_cache()
 
-    @lru_cache(maxsize=128)
+    def load_cache(self):
+        with open(self.cache_path, 'rb') as f:
+            self.cache = pickle.load(f)
+        
+    def save_cache(self):
+        with open(self.cache_path, 'wb') as f:
+            pickle.dump(self.cache, f)
+    
+    def prompt_template(self, question):
+        template = PromptTemplate.from_template(
+            "Question: {question}"
+        )
+        template = template.format(question=question)
+        return template
+    
     def output(self, question):
-        response = self.llm.invoke(question)
-        return response #return self.llm(question)
+        question = self.prompt_template(question)
+        response = self.llm(question)["choices"][0]["text"]
+        print(response)
 
-
+    def output_cache(self, question):
+        question = self.prompt_template(question)
+        if question in self.cache:
+            print("Using cached response")
+            print(self.cache[question])
+        else:
+            response = self.llm(question)["choices"][0]["text"]
+            self.cache[question] = response
+            print(response)
+            self.save_cache()  
+        
+    
 class Chain(LLM): #inherits from LLM
     def __init__(self, name, vector_store):
-        super.__init__()
+        super().__init__()
         self.name = set_name(name)
         self.vector_store = vector_store
         self.retriever = set_retriever()    
@@ -94,5 +131,5 @@ class Chain(LLM): #inherits from LLM
 
 if __name__ == "__main__":
     testModel = LLM()
-    prompt = "capital of France?"
-    testModel.output(prompt)
+    prompt = "What is the color of the sky?"
+    testModel.output_cache(prompt)
