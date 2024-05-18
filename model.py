@@ -102,13 +102,6 @@ class Chain(LLM): #inherits from LLM
     def set_document(self):
         document = self.db.get_query_text(getName(), 'fun game', n=5)
         return document
-        '''
-        self.retriever = self.vector_store.as_retriever(search_kwargs={
-            "k": 10,     # number of documents to retrieve
-            "filer": None,
-            "namespace": self.getName(),  #filter by name
-        }) 
-        '''
 
     def set_prompt(self, context):
         # Define the prompt template for the model        
@@ -124,35 +117,9 @@ class Chain(LLM): #inherits from LLM
         )
         self.prompt = template.format(template, context=context, name=self.getName())
 
-    '''
-    def set_query(self):
-        query = self.getName() + "game review" #search query for 
-        return query
-
-    def show_retrieval_result(self, response):
-        for i, source in enumerate(response["source_documents"], 1):
-            print(f"\nindex: {i}")
-            print(f"{source.page_content}")
-    '''
-
-    def get_response(self):
-        response = self.llm.output_cache(prompt)
-        return response
-
-        '''
-        return RetrievalQA.from_chain_type(
-            llm=self.llm,
-            retriever=self.set_retriever(),
-            callback_manager=self.callback_manager,
-            chaintype = "stuff",  #Processing method of the searched text. other options: map_reduce,refine
-            chain_type_kwargs={'prompt': prompt_template()},
-            verbose=True,
-        )
-        ''' 
-
     def output(self, name):
         self.update(name)
-        response = self.get_response()
+        response = self.llm.output_cache(prompt)
         return response
 
 if __name__ == "__main__":
