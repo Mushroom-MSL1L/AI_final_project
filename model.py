@@ -1,10 +1,14 @@
+import os
+import sys
+
 from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from llama_cpp import Llama
 import pickle
-import os
+
+from DB.db import DB
 
 class LLM:
     def __init__(self):
@@ -67,53 +71,60 @@ class LLM:
 class Chain(LLM): #inherits from LLM
     def __init__(self, name, vector_store):
         super().__init__()
-        self.name = set_name(name)
-        self.vector_store = vector_store
-        self.retriever = set_retriever()    
-        self.chain = set_chain()
+
+        self.db = db.DB()
+        self.name = set_name(name)  
+        self.document = get_document()
+        self.prompt = set_prompt()
+        db.add_reviews(getName())
 
     def update(self, name):
         self.name = set_name(name)
-        self.retriever = set_retriever()    
-        self.chain = set_chain()     
+        self.db_add_reviews()
+        self.document = set_document()
+        self.prompt = set_prompt()
+
+    def db_add_reviews(self):
+        self.db.add_reviews(getName())
 
     def getName(self):
         return self.name
+    
+    def get_document(self):
+        return self.document
+
+    def get_prompt(self):
+        return self.prompt
 
     def set_name(self, name):
         self.name = name
 
-    def set_retriever(self):
+    def set_document(self):
+        document = self.db.get_query_text(getName(), 'fun game', n=5)
+        return document
+        '''
         self.retriever = self.vector_store.as_retriever(search_kwargs={
             "k": 10,     # number of documents to retrieve
             "filer": None,
             "namespace": self.getName(),  #filter by name
         }) 
+        '''
 
-    def set_chain(self):
-        return RetrievalQA.from_chain_type(
-            llm=self.llm,
-            retriever=self.set_retriever(),
-            callback_manager=self.callback_manager,
-            chaintype = "stuff",  #Processing method of the searched text. other options: map_reduce,refine
-            chain_type_kwargs={'prompt': prompt_template()},
-            verbose=True,
-        )
-
-    def set_prompt(self):
+    def set_prompt(self, context):
         # Define the prompt template for the model        
-        template = """You are an helpful AI assistant. Your job is to answer the question sent by the user clearly, briefly and concisely.
+        template = PromptTemplate(
+        """You are an helpful AI assistant. Your job is to answer the question sent by the user clearly, briefly and concisely.
         If you don't know the answer to a question, please don't share false information.
         Your answer to the question should be based on the context provided.
 
         Context: {context}
         Question: I want to know about the game {name} 
         Response for Questions asked.
-        Answer: 
-        """
-        prompt = PromptTemplate(template, context=context, name=self.getName())
-        return prompt
+        Answer: """
+        )
+        self.prompt = template.format(template, context=context, name=self.getName())
 
+    '''
     def set_query(self):
         query = self.getName() + "game review" #search query for 
         return query
@@ -122,14 +133,34 @@ class Chain(LLM): #inherits from LLM
         for i, source in enumerate(response["source_documents"], 1):
             print(f"\nindex: {i}")
             print(f"{source.page_content}")
+    '''
+
+    def get_response(self):
+        response = self.llm.output_cache(prompt)
+        return response
+
+        '''
+        return RetrievalQA.from_chain_type(
+            llm=self.llm,
+            retriever=self.set_retriever(),
+            callback_manager=self.callback_manager,
+            chaintype = "stuff",  #Processing method of the searched text. other options: map_reduce,refine
+            chain_type_kwargs={'prompt': prompt_template()},
+            verbose=True,
+        )
+        ''' 
 
     def output(self, name):
-        query = self.retrieval_query_template()
-        response = self.chain.invoke(query)
-        #self.show_retrieval_result(response)
-        return response["result"]
+        self.update(name)
+        response = self.get_response()
+        return response
 
 if __name__ == "__main__":
-    testModel = LLM()
-    prompt = "What is the color of the sky?"
-    testModel.output_cache(prompt)
+    #test LLM
+    #testModel = LLM()
+    #prompt = "What is the color of the sky?"
+    #testModel.output_cache(prompt)
+    
+    # test Chain
+    testChain = Chain("")
+    
