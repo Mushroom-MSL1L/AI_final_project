@@ -85,7 +85,7 @@ class API:
     
     
 a = API()
-name = 'The Two Moons'
+name = 'Forza Horizon 5'
 game_id = a.get_game_Id(name)
 
 r = a.get_reviews(game_id)
