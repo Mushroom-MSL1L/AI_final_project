@@ -2,7 +2,7 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-import logging
+from functools import lru_cache
 
 class LLM:
     def __init__(self):
@@ -21,35 +21,37 @@ class LLM:
             verbose=True,       #output 
         )
 
+    @lru_cache(maxsize=128)
     def output(self, question):
         response = self.llm.invoke(question)
         return response #return self.llm(question)
 
 
-
 class Chain(LLM): #inherits from LLM
     def __init__(self, name, vector_store):
         super.__init__()
-        self.name = name
+        self.name = set_name(name)
         self.vector_store = vector_store
         self.retriever = set_retriever()    
         self.chain = set_chain()
 
     def update(self, name):
-        self.name = name
+        self.name = set_name(name)
         self.retriever = set_retriever()    
         self.chain = set_chain()     
 
     def getName(self):
         return self.name
 
+    def set_name(self, name):
+        self.name = name
+
     def set_retriever(self):
-        retriever = self.vector_store.as_retriever(search_kwargs={
+        self.retriever = self.vector_store.as_retriever(search_kwargs={
             "k": 10,     # number of documents to retrieve
             "filer": None,
             "namespace": self.getName(),  #filter by name
         }) 
-        return retriever
 
     def set_chain(self):
         return RetrievalQA.from_chain_type(
