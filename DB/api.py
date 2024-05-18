@@ -49,10 +49,10 @@ class API:
                 return json.dumps(row_data['reviews'], indent=4)
             else:
                 print('Error: ', row_data['success'])
-                return None
+                return []
         else:
             print('Error: ', r.status_code)
-            return None
+            return []
     
     def get_reviews(self, game_id):
         params = {
@@ -63,7 +63,7 @@ class API:
             "cursor": "*",
             "review_type": "all", # all, positive, negative
             "purchase_type": "all", # all, non_steam_purchase, steam
-            "num_per_page": "100",  
+            "num_per_page": "5",  
         }
         r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
         row_data = r.json()
@@ -72,10 +72,10 @@ class API:
                 reviews_information = row_data['reviews']
             else:
                 print('Error: ', row_data['success'])
-                return None
+                return []
         else:
             print('Error: ', r.status_code)
-            return None
+            return []
         
         if reviews_information is not None:
             reviews = []
@@ -84,12 +84,12 @@ class API:
             return reviews
     
     
-a = API()
-name = 'Forza Horizon 5'
-game_id = a.get_game_Id(name)
+# a = API()
+# name = 'Forza Horizon 5'
+# game_id = a.get_game_Id(name)
 
-r = a.get_reviews(game_id)
-print(r)
-print(len(r))
+# r = a.get_reviews(game_id)
+# print(r)
+# print(len(r))
 # print(a.get_reviews_information(game_id))
 # print(a.id_list)
