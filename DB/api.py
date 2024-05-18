@@ -25,6 +25,10 @@ class API:
         row_data = response.json()
         return row_data['applist']['apps']
     
+    def show_ID_list(self):
+        for game in self.id_list:
+            print(game['name'], game['appid'])
+
     def get_game_Id (self, game_name):
         for game in self.id_list:
             if game['name'] == game_name:
@@ -85,6 +89,7 @@ class API:
     
     
 # a = API()
+# a.show_ID_list()
 # name = 'Forza Horizon 5'
 # game_id = a.get_game_Id(name)
 
