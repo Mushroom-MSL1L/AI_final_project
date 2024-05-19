@@ -2,3 +2,4 @@ langchain
 chromadb
 llama-cpp-python
 PyYAML==6.0.1
+sentence-transformers
