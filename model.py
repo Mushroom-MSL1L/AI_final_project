@@ -27,11 +27,14 @@ class LLM:
             #n_gpu_layers=-1,   #Use GPU acceleration
             verbose=True,       #output 
         )
-  
+        
         self.cache_path = "cache.pkl"
         self.cache = {}
         self.set_cache_path()
         self.load_cache()
+
+    def __call__(self, question):
+        return self.template_output(question)
     
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
@@ -44,6 +47,10 @@ class LLM:
     def save_cache(self):
         with open(self.cache_path, 'wb') as f:
             pickle.dump(self.cache, f)
+    
+    def reset_cachefile(self):
+        self.cache = {}
+        self.save_cache()
     
     def prompt_template(self, question):
         template = PromptTemplate.from_template(
@@ -77,7 +84,7 @@ class LLM:
             return response 
         
     
-class Chain(): #inherits from LLM
+class Chain:
     def __init__(self):
         self.llm = LLM()
         self.db = db()
@@ -87,7 +94,7 @@ class Chain(): #inherits from LLM
 
     def __call__(self, name):
         self.name = name
-        self.db_add_reviews()
+        self.db.add_reviews()
         self.document = self.set_document()
         self.prompt = self.set_prompt()
         output = self.llm.cache_output(self.get_prompt())
@@ -135,11 +142,12 @@ class Chain(): #inherits from LLM
         return prompt
 
 #test LLM
-#testModel = LLM()
-#prompt = "The quick brown fox" # output should be "jumps over the lazy dog"
-#print(testModel.template_output(prompt)) 
+prompt = "The quick brown fox" # output should be "jumps over the lazy dog"
+testModel = LLM()
+response = testModel(prompt)
+print(response) 
 
 #test Chain
-testChain = Chain()
-response = testChain("Forza Horizon 4")
-print(response)
+#testChain = Chain()
+#response = testChain("Forza Horizon 4")
+#print(response)
