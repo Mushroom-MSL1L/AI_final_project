@@ -131,21 +131,20 @@ class Chain:
             """You are a helpful AI assistant.
             If you don't know the answer to a question, don't share false information.
             Your answer should be based on the context provided, game review of {name}.
-            Your response should start with "{name} is", and end with ".", no other punctuation is allowed.
 
             Context: {context}
 
-            Question: How would you describe {name}?
+            Question: Tell me about {name}.
             """
         )
         prompt = template.format(context=self.get_document(), name=self.get_name())
         return prompt
 
 #test LLM
-prompt = "The quick brown fox" # output should be "jumps over the lazy dog"
-testModel = LLM()
-response = testModel(prompt)
-print(response) 
+#prompt = "The quick brown fox" # output should be "jumps over the lazy dog"
+#testModel = LLM()
+#response = testModel(prompt)
+#print(response) 
 
 #test Chain
 #testChain = Chain()
