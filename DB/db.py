@@ -95,6 +95,12 @@ class db ():
         )
         return len(results['metadatas'])
     
+    def get_DB_game_list(self):
+        results = self.cursor.get(
+            include=['metadatas'],
+        )
+        return [r['game_name'] for r in results['metadatas']]
+    
     def delete_game(self, game_name):
         is_deleted = False
         has_game = False
@@ -119,6 +125,7 @@ class db ():
 # DB = db()
 # DB.add_reviews('Forza Horizon 4')
 # DB.add_reviews('Stardew Valley')
+# print(DB.get_DB_game_list())
 # print('query: ', DB.get_query_text('Forza Horizon 4', 'fun game', n=10))
 # print('#(Forza Horizon 4): ', DB.get_game_review_number('Forza Horizon 4'))
 # print('#(Stardew Valley): ', DB.get_game_review_number('Stardew Valley'))
