@@ -14,7 +14,7 @@ class API:
 
     def get_config(self):
         config = {}
-        with open(get_path('config.yaml'), 'r') as file :
+        with open(get_path('config/config.yaml'), 'r') as file :
             config = yaml.safe_load(file)
         return config
 
@@ -29,7 +29,7 @@ class API:
             print(game['name'], game['appid'])
 
     def import_game_list(self):
-        file = open(get_path('game_list.txt'), 'w')
+        file = open(get_path('data/game_list.txt'), 'w')
         for game in self.id_list:
             file.write(str(game['appid']) + '\t' +game['name'] + '\n')
 
@@ -99,7 +99,7 @@ class API:
         
     def import_reviews(self, game_id, n=100):
         reviews = self.get_reviews(game_id=game_id, n=n)
-        with open(get_path('game_review.txt'), 'w') as file:
+        with open(get_path('data/game_review.txt'), 'w') as file:
             for i, review in enumerate(reviews):
                 file.write(str(i) + '\t' + review + '\n')
     
