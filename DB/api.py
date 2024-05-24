@@ -3,6 +3,8 @@ import requests
 import os
 import json
 
+from tools import get_path
+
 # https://partner.steamgames.com/doc/store/getreviews
 class API:
     def __init__(self):
@@ -12,10 +14,7 @@ class API:
 
     def get_config(self):
         config = {}
-        current_file_path = os.path.realpath(__file__)
-        current_dir_path = os.path.dirname(current_file_path)
-        config_file_path = os.path.join(current_dir_path, 'config.yaml')
-        with open(config_file_path, 'r') as file :
+        with open(get_path('config.yaml'), 'r') as file :
             config = yaml.safe_load(file)
         return config
 
@@ -29,6 +28,11 @@ class API:
         for game in self.id_list:
             print(game['name'], game['appid'])
 
+    def import_game_list(self):
+        file = open(get_path('game_list.txt'), 'w')
+        for game in self.id_list:
+            file.write(str(game['appid']) + '\t' +game['name'] + '\n')
+
     def get_game_Id (self, game_name):
         for game in self.id_list:
             if game['name'] == game_name:
@@ -39,12 +43,12 @@ class API:
         params = {
             "json": "1", 
             "filter": "recent", # recent, updated, all
-            # "language": "en",  
+            "language": "english",  
             # "day_range": "30",  
             "cursor": "*",
             "review_type": "all", # all, positive, negative
             "purchase_type": "all", # all, non_steam_purchase, steam
-            "num_per_page": "100",  
+            "num_per_page": "1",  
         }
         r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
         row_data = r.json()
@@ -58,43 +62,57 @@ class API:
             print('Error: ', r.status_code)
             return []
     
-    def get_reviews(self, game_id):
+    def get_reviews(self, game_id, n=100, cursor='*'):
         params = {
             "json": "1", 
             "filter": "recent", # recent, updated, all
-            # "language": "en",  
+            "language": "english",  
             # "day_range": "30",  
-            "cursor": "*",
+            "cursor": cursor,
             "review_type": "all", # all, positive, negative
             "purchase_type": "all", # all, non_steam_purchase, steam
-            "num_per_page": "5",  
+            "num_per_page": "100",  
         }
-        r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
-        row_data = r.json()
-        if r.status_code == 200:
-            if row_data['success'] == 1:
-                reviews_information = row_data['reviews']
+        params['num_per_page'] = str(min(n, 100))
+        reviews_information = []
+        while n > 0:
+            r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
+            row_data = r.json()
+            if r.status_code == 200:
+                if row_data['success'] == 1:
+                    reviews_information += row_data['reviews']
+                else:
+                    print('Error: ', row_data['success'])
+                    return []
             else:
-                print('Error: ', row_data['success'])
+                print('Error: ', r.status_code)
                 return []
-        else:
-            print('Error: ', r.status_code)
-            return []
+            n -= int(params['num_per_page'])
+            params['cursor'] = row_data['cursor']
+            params['num_per_page'] = str(min(n, 100))
         
         if reviews_information is not None:
             reviews = []
             for review in reviews_information:
                 reviews.append(review['review'])
             return reviews
+        
+    def import_reviews(self, game_id, n=100):
+        reviews = self.get_reviews(game_id=game_id, n=n)
+        with open(get_path('game_review.txt'), 'w') as file:
+            for i, review in enumerate(reviews):
+                file.write(str(i) + '\t' + review + '\n')
     
     
-# a = API()
-# a.show_ID_list()
-# name = 'Forza Horizon 5'
-# game_id = a.get_game_Id(name)
+# a = API() # setup a new API object
+# a.import_game_list() # import game list to game_list.txt for human readable
 
-# r = a.get_reviews(game_id)
+# name = 'Forza Horizon 5' # game name I want to search
+# name = 'ELDEN RING' # this game has a lot of reviews
+# game_id = a.get_game_Id(name) # get game id by game name
+
+# r = a.get_reviews(game_id, n=1000) # get reviews of the game by game id
 # print(r)
+# a.import_reviews(game_id, n=1000) # import reviews to game_review.txt for human readable
 # print(len(r))
-# print(a.get_reviews_information(game_id))
-# print(a.id_list)
+# print(a.get_reviews_information(game_id)) # get reviews information of the game by game id
