@@ -21,13 +21,43 @@ class db ():
             name=collection_name,
             embedding_function=self.embedding_func,
         )
+        self.cursor = self.chroma_client.get_or_create_collection(
+            name='cursor',
+            embedding_function=self.embedding_func,
+        )
         self.a = API()
 
-    def add_reviews(self, game_name):
+    def get_cursor(self, game_name):
+        results = self.cursor.get(
+            include=['metadatas', 'documents'],
+        )
+        for i in range(len(results['metadatas'])):
+            if results['metadatas'][i]['game_name'] == game_name:
+                return results['documents'][i]
+        return '*'
+    
+    def set_or_update_cursor(self, game_name, cursor):
+        r = self.get_cursor(game_name)
+        if r == '*':
+            self.cursor.add(
+                ids=[game_name],
+                documents=[cursor],
+                metadatas=[{'game_name': game_name}],
+            )
+        else:
+            self.cursor.update(
+                ids=[game_name],
+                documents=[cursor],
+            )
+
+    def add_reviews(self, game_name, n=100):
         game_id = self.a.get_game_Id(game_name)
-        r = self.a.get_reviews(game_id)
+        c = self.get_cursor(game_name)
+        r, c = self.a.get_reviews(game_id=game_id, n=n, cursor=c,)
+        self.set_or_update_cursor(game_name, c)
+        offset = self.collection.count()
         self.collection.add (
-            ids=[str(game_id)+"_"+str(i) for i in range(len(r))],
+            ids=[str(game_id)+"_"+str(offset+i) for i in range(len(r))],
             documents=r,
             metadatas=[{'game_id': game_id, 'game_name':game_name} for i in range(len(r))],
         )
@@ -49,8 +79,51 @@ class db ():
     def get_collection(self):
         return self.collection()
     
+    def get_game_review_number(self, game_name):
+        results = self.collection.get(
+            include=['metadatas'],
+        )
+        count = 0
+        for r in results['metadatas']:
+            if r['game_name'] == game_name:
+                count += 1
+        return count 
+    
+    def get_game_number(self):
+        results = self.cursor.get(
+            include=['metadatas'],
+        )
+        return len(results['metadatas'])
+    
+    def delete_game(self, game_name):
+        is_deleted = False
+        has_game = False
+        results = self.collection.get(
+            include=['metadatas'],
+        )
+        for r in results['metadatas']:
+            if r['game_name'] == game_name : 
+                has_game = True 
+                break
+        if has_game: 
+            self.collection.delete(
+                where={'game_name': game_name},
+            )
+            self.cursor.delete(
+                where={'game_name': game_name},
+            )
+            is_deleted = True
+        return is_deleted, has_game
+
+### Example
 # DB = db()
 # DB.add_reviews('Forza Horizon 4')
 # DB.add_reviews('Stardew Valley')
-# print(DB.get_query_text('Forza Horizon 4', 'fun game', n=5))
-
+# print('query: ', DB.get_query_text('Forza Horizon 4', 'fun game', n=10))
+# print('#(Forza Horizon 4): ', DB.get_game_review_number('Forza Horizon 4'))
+# print('#(Stardew Valley): ', DB.get_game_review_number('Stardew Valley'))
+# print('#', DB.get_game_number())
+# DB.delete_game('Stardew Valley')
+# print('#(Forza Horizon 4): ', DB.get_game_review_number('Forza Horizon 4'))
+# print('#(Stardew Valley): ', DB.get_game_review_number('Stardew Valley'))
+# print('#', DB.get_game_number())
