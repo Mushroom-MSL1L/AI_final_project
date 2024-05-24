@@ -18,13 +18,13 @@ class LLM:
     def __init__(self):
         self.model_path = r"llama.cpp/llama-2-7b-chat.Q5_K_M.gguf"
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-        self.llm = Llama(
+        self.llm = LlamaCpp(
             model_path=self.model_path,
             callback_manager=self.callback_manager,
             temperature=0.0,    #randomness
-            n_ctx=512, 
-            n_batch=512,
+            max_tokens=512,     #max tokens
             #n_gpu_layers=-1,   #Use GPU acceleration
+            top_p=1,
             verbose=True,       #output 
         )
         
@@ -34,7 +34,7 @@ class LLM:
         self.load_cache()
 
     def __call__(self, question):
-        return self.template_output(question)
+        return self.raw_output(question)
     
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
@@ -63,13 +63,12 @@ class LLM:
         return template
     
     def raw_output(self, question):
-        response = self.llm(prompt=question)
-
-        return response["choices"][0]["text"]
+        response = self.llm.invoke(question)
+        return response
     
     def template_output(self, question):
         question = self.prompt_template(question)
-        response = self.llm(question)["choices"][0]["text"]
+        response = self.llm.invoke(question)
         return response
 
     def cache_output(self, question):
@@ -78,7 +77,7 @@ class LLM:
             print("Using cached response")
             return self.cache[question]
         else:
-            response = self.llm(question)["choices"][0]["text"]
+            response = self.llm.invoke(question)
             self.cache[question] = response
             self.save_cache() 
             return response 
@@ -94,15 +93,25 @@ class Chain:
 
     def __call__(self, name):
         self.name = name
-        self.db.add_reviews()
+        self.check_DB()
         self.document = self.set_document()
         self.prompt = self.set_prompt()
-        output = self.llm.cache_output(self.get_prompt())
+        output = self.llm.raw_output(self.get_prompt())     
+        self.update_DB()
         return output
 
+    def check_DB(self):
+        games = self.db.get_DB_game_list()
+        if self.get_name() not in games:
+            self.db.add_reviews(self.get_name(), n=1000) 
+
+    def update_DB(self):
+        game = self.db.get_DB_game_list()
+        if len(game) > 20:
+            db.delete_game(game[0])
+
     def db_add_reviews(self):
-        #self.db.add_reviews(getName())
-        raise NotImplementedError
+        self.db.add_reviews(self.get_name())
 
     def get_name(self):
         return self.name
@@ -122,13 +131,14 @@ class Chain:
             "It's a Shut up and take my money situation. This game is a party. Kept me smiling. When you don't do anything unique and new, you better do everything great. Forza Horizon series does everything as good as it gets. And in fairness, it does do some new things. It's an excellent, beautiful, smooth experience. As a side note, I liked the educational missions like Top Gear and British Racing Green story lines. Just lovely! Same goes for crossover missions like Halo and CP77. Please more! It's rare that a AAA game, feels like a labor of love. Double so when we are talking about a racing game.",
         }
         '''
-        document = self.db.get_query_text(get_name(), 'fun game', n=5) # need to implement suitable keyword
+        document = self.db.get_query_text(self.get_name(), 'fun game', n=5) # need to implement suitable keyword
         return document
 
     def set_prompt(self):
         # Define the prompt template for the model        
         template = PromptTemplate.from_template(
-            """You are a helpful AI assistant.
+            """
+            You are a helpful AI assistant.
             If you don't know the answer to a question, don't share false information.
             Your answer should be based on the context provided, game review of {name}.
 
@@ -141,12 +151,12 @@ class Chain:
         return prompt
 
 #test LLM
-#prompt = "The quick brown fox" # output should be "jumps over the lazy dog"
-#testModel = LLM()
-#response = testModel(prompt)
-#print(response) 
+prompt = "Tell me about National Yang Ming Chiao Tung University" # output should be "jumps over the lazy dog"
+testModel = LLM()
+response = testModel(prompt)
+print(response) 
 
 #test Chain
-#testChain = Chain()
-#response = testChain("Forza Horizon 4")
-#print(response)
+# testChain = Chain()
+# response = testChain("Forza Horizon 4")
+# print("response: ", response)
