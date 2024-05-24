@@ -4,6 +4,7 @@ import os
 import json
 
 from tools import get_path
+from preprocess import preprocess
 
 # https://partner.steamgames.com/doc/store/getreviews
 class API:
@@ -11,6 +12,7 @@ class API:
         self.config = self.get_config()
         self.api_key = self.config['steam_api_key']
         self.id_list = self.get_ID_list()
+        self.p = preprocess()
 
     def get_config(self):
         config = {}
@@ -48,7 +50,7 @@ class API:
             "cursor": "*",
             "review_type": "all", # all, positive, negative
             "purchase_type": "all", # all, non_steam_purchase, steam
-            "num_per_page": "1",  
+            "num_per_page": "3",  
         }
         r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
         row_data = r.json()
@@ -74,31 +76,40 @@ class API:
             "num_per_page": "100",  
         }
         params['num_per_page'] = str(min(n, 100))
-        reviews_information = []
-        while n > 0:
+        reviews = []
+        row_data = {}
+        while len(reviews) < n :
             r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
             row_data = r.json()
+            if (len(row_data['reviews']) == 0) :
+                return reviews, cursor
+            temp_reviews = []
             if r.status_code == 200:
                 if row_data['success'] == 1:
-                    reviews_information += row_data['reviews']
+                    review_information = row_data['reviews']
+                    for r in review_information:
+                        temp_reviews.append(r['review'])
+                    self.p.load_data(temp_reviews)
+                    self.p.pick_enough_words(n=10)
+                    self.p.clean_text()
+                    self.p.pick_enough_words(n=10)
+                    self.p.is_meaningful()
+                    temp_reviews = self.p.get_data()
+                    reviews += temp_reviews
                 else:
                     print('Error: ', row_data['success'])
-                    return []
+                    return reviews
             else:
                 print('Error: ', r.status_code)
-                return []
-            n -= int(params['num_per_page'])
+                return reviews
             params['cursor'] = row_data['cursor']
             params['num_per_page'] = str(min(n, 100))
-        
-        if reviews_information is not None:
-            reviews = []
-            for review in reviews_information:
-                reviews.append(review['review'])
-            return reviews
+        reviews = reviews[:n]
+        return reviews, row_data['cursor']
         
     def import_reviews(self, game_id, n=100):
         reviews = self.get_reviews(game_id=game_id, n=n)
+        print(reviews)
         with open(get_path('data/game_review.txt'), 'w') as file:
             for i, review in enumerate(reviews):
                 file.write(str(i) + '\t' + review + '\n')
@@ -111,8 +122,8 @@ class API:
 # name = 'ELDEN RING' # this game has a lot of reviews
 # game_id = a.get_game_Id(name) # get game id by game name
 
-# r = a.get_reviews(game_id, n=1000) # get reviews of the game by game id
-# print(r)
+# r, c = a.get_reviews(game_id, n=100) # get reviews of the game by game id
+# print("reviews:\n", r, "\n\ncourser:", c)
 # a.import_reviews(game_id, n=1000) # import reviews to game_review.txt for human readable
 # print(len(r))
 # print(a.get_reviews_information(game_id)) # get reviews information of the game by game id
