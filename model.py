@@ -23,6 +23,8 @@ class LLM:
             callback_manager=self.callback_manager,
             #n_gpu_layers=-1,   #Use GPU acceleration
             top_p=1,
+            temperature=0.0,
+            n_ctx=512,         #context window, input length
             verbose=True,       #output 
         )
         
@@ -33,6 +35,9 @@ class LLM:
 
     def __call__(self, question):
         return self.raw_output(question)
+
+    def set_nctx(self, n_ctx):
+        self.llm.n_ctx = n_ctx
     
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
@@ -93,22 +98,22 @@ class Chain:
 
     def __call__(self, name):
         self.name = name
-        self.check_DB()
+        self.add_review()
         self.document = self.set_document()
         self.prompt = self.set_prompt()
-        output = self.llm.cache_output(self.get_prompt())     
-        self.update_DB()
+        output = self.llm.raw_output(self.get_prompt())     
+        self.updateDB()
         return output
 
-    def check_DB(self):
+    def add_review(self):
         games = self.db.get_DB_game_list()
         if self.get_name() not in games:
-            self.db.add_reviews(self.get_name(), n=1000) 
+            self.db.add_reviews(self.get_name(), n=1000)
 
-    def update_DB(self):
+    def updateDB(self):
         game = self.db.get_DB_game_list()
-        if len(game) > 20:
-            db.delete_game(game[0])
+        if len(game) > 10:
+            self.db.delete_game(game[0])
 
     def db_add_reviews(self):
         self.db.add_reviews(self.get_name())
@@ -131,20 +136,26 @@ class Chain:
             "It's a Shut up and take my money situation. This game is a party. Kept me smiling. When you don't do anything unique and new, you better do everything great. Forza Horizon series does everything as good as it gets. And in fairness, it does do some new things. It's an excellent, beautiful, smooth experience. As a side note, I liked the educational missions like Top Gear and British Racing Green story lines. Just lovely! Same goes for crossover missions like Halo and CP77. Please more! It's rare that a AAA game, feels like a labor of love. Double so when we are talking about a racing game.",
         }
         '''
-        document = self.db.get_query_text(self.get_name(), 'fun game', n=5) # need to implement suitable keyword  
-        return document
+        keywords = ['size', 'graphic', 'gameplay', 'sound', 'target', 'storyline', 'difficulty', 'controls', 'player']
+        documents = []
+        for keyword in keywords:
+            document = self.db.get_query_text(self.get_name(), keyword, n=1)
+            for text in document:
+                if len(text) > 5:
+                    documents.append(text)
+        
+        return documents
 
     def set_prompt(self):
         # Define the prompt template for the model        
         template = PromptTemplate.from_template(
             """
             <s>[INST]<<SYS>>
-            You are a helpful AI assistant.
-            You should provide an answer based on the reviews of the game {name}.
-            Ensure that your response is informative and based on the provided reviews.
+            You are an AI assistant.
+            Ensure that your response is informative and based on the reviews.
             <</SYS>>
-            Reviews: {game_reviews}
-            Question: What can you tell me about the game {name}?
+            Reviews:{game_reviews}
+            Question:What can you tell me about the game {name}?
             [/INST]
             """
         )
@@ -165,8 +176,8 @@ class Chain:
         You should provide an answer based on the reviews of the game {name}.
         Ensure that your response is informative and based on the provided reviews.
         <</SYS>>
-        Reviews: {game_reviews}
-        Question: What can you tell me about the game {name}?
+        Reviews:{game_reviews}
+        Question:What can you tell me about {name}?
         [/INST]
         """
 
