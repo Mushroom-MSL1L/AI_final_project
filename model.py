@@ -21,8 +21,6 @@ class LLM:
         self.llm = LlamaCpp(
             model_path=self.model_path,
             callback_manager=self.callback_manager,
-            temperature=0.0,    #randomness
-            max_tokens=512,     #max tokens
             #n_gpu_layers=-1,   #Use GPU acceleration
             top_p=1,
             verbose=True,       #output 
@@ -46,6 +44,8 @@ class LLM:
         
     def save_cache(self):
         with open(self.cache_path, 'wb') as f:
+            if len(self.cache) > 100:
+                self.cache.remove(self.cache[0])
             pickle.dump(self.cache, f)
     
     def reset_cachefile(self):
@@ -96,7 +96,7 @@ class Chain:
         self.check_DB()
         self.document = self.set_document()
         self.prompt = self.set_prompt()
-        output = self.llm.raw_output(self.get_prompt())     
+        output = self.llm.cache_output(self.get_prompt())     
         self.update_DB()
         return output
 
@@ -131,32 +131,61 @@ class Chain:
             "It's a Shut up and take my money situation. This game is a party. Kept me smiling. When you don't do anything unique and new, you better do everything great. Forza Horizon series does everything as good as it gets. And in fairness, it does do some new things. It's an excellent, beautiful, smooth experience. As a side note, I liked the educational missions like Top Gear and British Racing Green story lines. Just lovely! Same goes for crossover missions like Halo and CP77. Please more! It's rare that a AAA game, feels like a labor of love. Double so when we are talking about a racing game.",
         }
         '''
-        document = self.db.get_query_text(self.get_name(), 'fun game', n=5) # need to implement suitable keyword
+        document = self.db.get_query_text(self.get_name(), 'fun game', n=5) # need to implement suitable keyword  
         return document
 
     def set_prompt(self):
         # Define the prompt template for the model        
         template = PromptTemplate.from_template(
             """
+            <s>[INST]<<SYS>>
             You are a helpful AI assistant.
-            If you don't know the answer to a question, don't share false information.
-            Your answer should be based on the context provided, game review of {name}.
-
-            Context: {context}
-
-            Question: Tell me about {name}.
+            You should provide an answer based on the reviews of the game {name}.
+            Ensure that your response is informative and based on the provided reviews.
+            <</SYS>>
+            Reviews: {game_reviews}
+            Question: What can you tell me about the game {name}?
+            [/INST]
             """
         )
-        prompt = template.format(context=self.get_document(), name=self.get_name())
+        # template1
+        """
+        <s>[INST]<<SYS>>
+        You are a helpful AI assistant.
+        Your answer should be based on {name} game reviews.
+        <</SYS>>
+        Reviews: {game_reviews}         
+        Question: I want to know about {name}.
+        [/INST] 
+        """    
+        # template2
+        """
+        <s>[INST]<<SYS>>
+        You are a helpful AI assistant.
+        You should provide an answer based on the reviews of the game {name}.
+        Ensure that your response is informative and based on the provided reviews.
+        <</SYS>>
+        Reviews: {game_reviews}
+        Question: What can you tell me about the game {name}?
+        [/INST]
+        """
+
+        prompt = template.format(game_reviews=self.get_document(), name=self.get_name())
         return prompt
 
 #test LLM
-prompt = "Tell me about National Yang Ming Chiao Tung University" # output should be "jumps over the lazy dog"
-testModel = LLM()
-response = testModel(prompt)
-print(response) 
+# prompt = """You are a helpful AI assistant.
+#         If you don't know the answer to a question, don't share false information.   
+#         Your answer should be based on the context provided, game review of Forza Horizon 4.
+#         Context: ['A fun game to play and I love how the cars are', 'I am hooked to this thing. It is fun. Can you believe that? A fun game?', 'its a fun multi and single player game with lots to do', 'Bought this game thinking that my friends who also bought it would play with me. Boy was I wrong. Fun game though will continue to be sad and play alone.', 'Wonderful game. If you are so done with your life this game can help you']
+        
+#         Question: Tell me about Forza Horizon 4."""
+# print(len(prompt))
+# testModel = LLM()
+# response = testModel(prompt)
+# print(response) 
 
 #test Chain
-# testChain = Chain()
-# response = testChain("Forza Horizon 4")
-# print("response: ", response)
+testChain = Chain()
+response = testChain("Forza Horizon 4")
+print("response: ", response)
