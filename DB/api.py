@@ -9,16 +9,8 @@ from preprocess import preprocess
 # https://partner.steamgames.com/doc/store/getreviews
 class API:
     def __init__(self):
-        self.config = self.get_config()
-        self.api_key = self.config['steam_api_key']
         self.id_list = self.get_ID_list()
         self.p = preprocess()
-
-    def get_config(self):
-        config = {}
-        with open(get_path('config/config.yaml'), 'r') as file :
-            config = yaml.safe_load(file)
-        return config
 
     def get_ID_list(self):
         url = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
@@ -64,7 +56,7 @@ class API:
             print('Error: ', r.status_code)
             return []
     
-    def get_reviews(self, game_id, n=100, cursor='*'):
+    def get_reviews(self, game_id, n=100, cursor='*', max_len=110):
         params = {
             "json": "1", 
             "filter": "recent", # recent, updated, all
@@ -94,6 +86,8 @@ class API:
                     self.p.clean_text()
                     self.p.pick_enough_words(n=10)
                     self.p.is_meaningful()
+                    self.p.pick_english()
+                    self.p.remove_overflow(max_len=max_len)
                     temp_reviews = self.p.get_data()
                     reviews += temp_reviews
                 else:
@@ -107,8 +101,8 @@ class API:
         reviews = reviews[:n]
         return reviews, row_data['cursor']
         
-    def import_reviews(self, game_id, n=100):
-        reviews = self.get_reviews(game_id=game_id, n=n)
+    def import_reviews(self, game_id, n=100, cursor='*', max_len=110):
+        reviews, _ = self.get_reviews(game_id=game_id, n=n, max_len=max_len)
         print(reviews)
         with open(get_path('data/game_review.txt'), 'w') as file:
             for i, review in enumerate(reviews):
@@ -118,12 +112,12 @@ class API:
 # a = API() # setup a new API object
 # a.import_game_list() # import game list to game_list.txt for human readable
 
-# name = 'Forza Horizon 5' # game name I want to search
+# name = 'Forza Horizon 4' # game name I want to search
 # name = 'ELDEN RING' # this game has a lot of reviews
 # game_id = a.get_game_Id(name) # get game id by game name
 
-# r, c = a.get_reviews(game_id, n=100) # get reviews of the game by game id
+# r, c = a.get_reviews(game_id, n=100, max_len=2) # get reviews of the game by game id
 # print("reviews:\n", r, "\n\ncourser:", c)
-# a.import_reviews(game_id, n=1000) # import reviews to game_review.txt for human readable
+# a.import_reviews(game_id, n=1000, max_len=1000) # import reviews to game_review.txt for human readable
 # print(len(r))
 # print(a.get_reviews_information(game_id)) # get reviews information of the game by game id
