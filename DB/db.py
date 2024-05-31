@@ -3,7 +3,8 @@ import sys
 import chromadb
 from chromadb.utils import embedding_functions
 
-from api import API
+from .api import API
+from .preprocess import preprocess
 current_dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, current_dir_path)
 
@@ -26,6 +27,7 @@ class db ():
             embedding_function=self.embedding_func,
         )
         self.a = API()
+        self.p = preprocess()
 
     def get_cursor(self, game_name):
         results = self.cursor.get(
@@ -53,7 +55,7 @@ class db ():
     def add_reviews(self, game_name, n=100):
         game_id = self.a.get_game_Id(game_name)
         c = self.get_cursor(game_name)
-        r, c = self.a.get_reviews(game_id=game_id, n=n, cursor=c,)
+        r, c = self.a.get_reviews(game_id=game_id, n=n, cursor=c)
         self.set_or_update_cursor(game_name, c)
         offset = self.collection.count()
         self.collection.add (
@@ -68,8 +70,11 @@ class db ():
             query_texts = query,
             n_results=n)
             
-    def get_query_text(self, game_name, query, n=5):
-        return self.get_query(game_name, query, n)['documents'][0]
+    def get_query_text(self, game_name, query, n=5, max_len=10000000):
+        row_data = self.get_query(game_name, query, n)['documents'][0]
+        self.p.load_data(row_data)
+        self.p.remove_overflow(max_len=max_len)
+        return self.p.get_data()
     
     def get_query_by_embeddings(self, embeddings, n=5):
         return self.collection.query(
@@ -95,6 +100,12 @@ class db ():
         )
         return len(results['metadatas'])
     
+    def get_DB_game_list(self):
+        results = self.cursor.get(
+            include=['metadatas'],
+        )
+        return [r['game_name'] for r in results['metadatas']]
+    
     def delete_game(self, game_name):
         is_deleted = False
         has_game = False
@@ -116,10 +127,10 @@ class db ():
         return is_deleted, has_game
 
 ### Example
-# DB = db()
+DB = db()
 # DB.add_reviews('Forza Horizon 4')
 # DB.add_reviews('Stardew Valley')
-# print('query: ', DB.get_query_text('Forza Horizon 4', 'fun game', n=10))
+# print('query: ', DB.get_query_text('Forza Horizon 4', 'fun game', n=10, max_len=2))
 # print('#(Forza Horizon 4): ', DB.get_game_review_number('Forza Horizon 4'))
 # print('#(Stardew Valley): ', DB.get_game_review_number('Stardew Valley'))
 # print('#', DB.get_game_number())
