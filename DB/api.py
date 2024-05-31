@@ -3,8 +3,8 @@ import requests
 import os
 import json
 
-from tools import get_path
-from preprocess import preprocess
+from .tools import get_path
+from .preprocess import preprocess
 
 # https://partner.steamgames.com/doc/store/getreviews
 class API:

@@ -3,7 +3,7 @@ import sys
 import chromadb
 from chromadb.utils import embedding_functions
 
-from api import API
+from .api import API
 current_dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, current_dir_path)
 
@@ -122,7 +122,7 @@ class db ():
         return is_deleted, has_game
 
 ### Example
-# DB = db()
+DB = db()
 # DB.add_reviews('Forza Horizon 4')
 # DB.add_reviews('Stardew Valley')
 # print(DB.get_DB_game_list())
