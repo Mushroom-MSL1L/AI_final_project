@@ -7,3 +7,4 @@ llama_cpp_python == 0.2.73
 gguf == 0.6.0
 sentence-transformers == 2.7.0
 langid == 1.1.6
+chainlit
