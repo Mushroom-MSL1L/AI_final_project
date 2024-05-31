@@ -38,12 +38,14 @@ class preprocess:
         for i in self.data:
             small_str = ''
             arr = i.split()
-            for j in arr:
+            for counter, j in enumerate(arr):
+                if len(arr) < counter:
+                    break
                 if len(small_str) <= max_len:
                     small_str += j + ' '
                 else:
                     break
-            temp_data.append(small_str)
+            temp_data.append(small_str.strip())
         self.data = temp_data
     
     def is_meaningful(self):
