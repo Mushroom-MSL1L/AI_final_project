@@ -2,7 +2,7 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain.chains import SimpleSequentialChain
+from langchain.callbacks.base import BaseCallbackHandler
 
 import pickle
 import os
@@ -15,10 +15,12 @@ class LLM:
     def __init__(self):
         self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q5_K_M.gguf"
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+        self.callback_manager = None
         self.model = LlamaCpp(
             #input include begging token + end token
             model_path=self.model_path,
             callback_manager=self.callback_manager,
+            streaming=True,
             #n_gpu_layers=-1,   #Use GPU acceleration
             top_p=1,
             temperature=0.0,
@@ -33,7 +35,10 @@ class LLM:
         self.load_cache()
 
     def __call__(self, question):
-        return self.raw_output(question)
+        return self.template_output(question)
+
+    def set_callback(self, callback):
+        self.model.callback_manager = callback
 
     def set_nctx(self, n_ctx):
         self.model.n_ctx = n_ctx
@@ -44,7 +49,10 @@ class LLM:
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
             self.save_cache()
-    
+
+    def set_callback(self, callback):
+        self.model.callback_manager = callback
+
     def get_llm(self):
         return self.llm
 
@@ -65,8 +73,10 @@ class LLM:
     def prompt_template(self, question):
         template = PromptTemplate.from_template(
             """
+            <s> [INST] <<SYS>> You are a helpful AI assistant. <</SYS>>
             Question: {question}
             Response:
+            [/INST]
             """
         )
         template = template.format(question=question)
@@ -96,6 +106,12 @@ class LLM:
             self.cache[question] = response
             self.save_cache() 
             return response
+
+class MyCustomHandler(BaseCallbackHandler):
+    def on_llm_new_token(self, token: str, **kwargs) -> None:
+        return token
+
+
 
 # llm = LLM()
 # response = llm("What is the capital of France?")
