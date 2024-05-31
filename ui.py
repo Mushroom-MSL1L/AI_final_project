@@ -1,10 +1,9 @@
 import chainlit as cl
-from langchain_core.callbacks import CallbackManager
 
 from Model import Chain
 from Model import LLM
 
-llm = LLM()
+chain = Chain()
 
 # chainlit run ui.py -w
 # type above command in terminal to run this file
@@ -20,5 +19,5 @@ llm = LLM()
 @cl.on_message
 async def main(message: str):
     await cl.Message(
-        content=llm(message.content),
+        content=chain(message.content),
     ).send()
