@@ -1,4 +1,5 @@
 import re
+import langid
 
 class preprocess:
     def __init__(self, data=None):
@@ -17,12 +18,34 @@ class preprocess:
                 temp_data.append(i)
         self.data = temp_data
 
+    def pick_english(self):
+        temp_data = []
+        for i in self.data:
+            if langid.classify(i)[0] == 'en':
+                temp_data.append(i)
+        self.data = temp_data
+
     def clean_text(self):
         temp_data = []
         for i in self.data:
             i = re.sub(r'\s+', ' ', i) 
             i = re.sub(r'[^A-Za-z0-9\s.\\\/?!]', '', i) 
             temp_data.append(i)
+        self.data = temp_data
+
+    def remove_overflow(self, max_len=110):
+        temp_data = []
+        for i in self.data:
+            small_str = ''
+            arr = i.split()
+            for counter, j in enumerate(arr):
+                if len(arr) < counter:
+                    break
+                if len(small_str) <= max_len:
+                    small_str += j + ' '
+                else:
+                    break
+            temp_data.append(small_str.strip())
         self.data = temp_data
     
     def is_meaningful(self):
