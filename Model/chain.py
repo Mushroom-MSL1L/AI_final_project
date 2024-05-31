@@ -2,8 +2,7 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, StuffDocumentsChain
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, StuffDocumentsChainr
 
 from .model import LLM
 from DB import db
