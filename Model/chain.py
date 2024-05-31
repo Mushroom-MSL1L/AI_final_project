@@ -12,63 +12,61 @@ class Chain:
     def __init__(self):
         self.llm = LLM()
         self.db = db()
-        self.name = None
-        self.document = None
-        self.prompt = None
+        self.eval = None
 
     def __call__(self, name):
-        self.name = name
-        self.add_review(self.get_name()) # update db and add reviews
-        self.document = self.set_document()
-        self.prompt = self.set_prompt()
-        result = self.output_chain()
+        # get reviews from db and set prompt for model
+        
+        self.update_db(name) # update db and add reviews
+
+        document = self.set_document(name)
+        prompt = self.set_prompt()
+        result = self.output_chain(name, document, prompt)
         return result
 
-    def updateDB(self): 
-        # called in add_review
+    def update_db(self, name):
+        # db size limit 10
+        # add reviews if not in db
+
         game = self.db.get_DB_game_list()
         if len(game) > 10:
             self.db.delete_game(game[0])
 
-    def add_review(self, name):
-        self.updateDB()
         games = self.db.get_DB_game_list()
         if name not in games:
-            self.db.add_reviews(name, n=2000)
-
-    def get_name(self):
-        return self.name
-    
-    def get_document(self):
-        return self.document
-
-    def get_prompt(self):
-        return self.prompt
+            self.db.add_reviews(name, n=1000)
 
     def get_length(self, documents):
+        # get total length of documents
+
         total_length = 0
         for document in documents:
             for text in document:
                 total_length += len(text)
         return total_length
 
-    def set_document(self):
+    def set_document(self, name):
+        # add reviews to document from db regarding to keywords
+        # limit document length to 1000
+        # return document as string
+
         keywords = ['size', 'graphic', 'gameplay', 'sound', 'target', 'storyline', 'difficulty', 'controls', 'player']
         documents = []
+        str_docs = ''
 
         for keyword in keywords:
-            document = self.db.get_query_text(self.get_name(), keyword, n=20)
+            document = self.db.get_query_text(name, keyword, n=20)
             documents.append(document)
 
         while self.get_length(documents) > 1000:
             for document in documents:
                 document.pop(len(document)-1)
 
-        context = ''
         for document in documents:
             for text in document:
-                context += text + ' '
-        return context
+                str_docs += text + ' '
+
+        return str_docs
 
     def set_prompt(self):
         # Define the prompt template for the model        
@@ -77,41 +75,22 @@ class Chain:
             Prompt: Tell me about the game {name}. [/INST]
             """
         
-        # template1
-        """
-        <s>[INST]<<SYS>>
-        You are a helpful AI assistant.
-        Your answer should be based on {name} game reviews.
-        <</SYS>>
-        Reviews: {game_reviews}         
-        Question: I want to know about {name}.
-        [/INST] 
-        """    
-        # template2
-        """
-        <s>[INST]<<SYS>>
-        You are a helpful AI assistant.
-        Ensure that your response is informative and based on the provided reviews.
-        <</SYS>>
-        Reviews:{game_reviews}
-        Question:What can you tell me about {name}?
-        [/INST]
-        """
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return prompt
     
-    def output_chain(self):
-        chain = self.get_prompt() | self.llm.model
-        result = chain.invoke({"game_reviews": self.get_document(), "name": self.get_name()})
+    def output_chain(self, name, document, prompt):
+        # Define the chain of models to be used
+
+        chain = prompt | self.llm.model
+        result = chain.invoke({"game_reviews": document, "name": name})
         return result
 
     def test_chain():
+        # test chain, not for practical use
+
         testChain = Chain()
         response = testChain("Forza Horizon 4")
         print("response: ", response)
-
-    def test():
-        pass
 
         
     
