@@ -16,9 +16,8 @@ class Chain:
         # get reviews from db and set prompt for model
         
         self.update_db(name) # update db and add reviews
-
-        document = self.set_document(name)
         prompt = self.set_prompt()
+        document = self.set_document(name)
         result = self.output_chain(name, document, prompt)
         return result
 
@@ -78,6 +77,8 @@ class Chain:
     
     def output_chain(self, name, document, prompt):
         # Define the chain of models to be used
+        if document == '':
+            return "No reviews found for the game."
 
         chain = prompt | self.llm.model
         result = chain.invoke({"game_reviews": document, "name": name})
