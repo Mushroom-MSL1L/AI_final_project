@@ -6,6 +6,7 @@ from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, Stuf
 
 from .model import LLM
 from DB import db
+from evaluation import TFIDF
 
 class Chain:
     def __init__(self):
@@ -90,9 +91,12 @@ class Chain:
         testChain = Chain()
         response = testChain("Forza Horizon 4")
         print("response: ", response)
+        ### new edit ###
+        reviews = testChain.db.get_game_all_reviews("Forza Horizon 4")
+        tfidf = TFIDF()
+        tfidf.load_data(reviews)
+        print("score: ", tfidf.evaluate(response, n=1000))
 
-        
-    
 #test LLM
 # prompt = """You are a helpful AI assistant.
 #         If you don't know the answer to a question, don't share false information.   
