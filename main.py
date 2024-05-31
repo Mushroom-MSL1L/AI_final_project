@@ -1,5 +1,5 @@
 # from Model import Chain
-from evaluation import TFIDF
+from Evaluation import TFIDF
 
 if __name__ == "__main__":
     # Chain.test_chain()
