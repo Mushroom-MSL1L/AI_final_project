@@ -1,4 +1,5 @@
 import re
+import langid
 
 class preprocess:
     def __init__(self, data=None):
@@ -14,6 +15,13 @@ class preprocess:
         temp_data = []
         for i in self.data :
             if len(i.split()) > n:
+                temp_data.append(i)
+        self.data = temp_data
+
+    def pick_english(self):
+        temp_data = []
+        for i in self.data:
+            if langid.classify(i)[0] == 'en':
                 temp_data.append(i)
         self.data = temp_data
 
