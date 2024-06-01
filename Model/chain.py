@@ -12,6 +12,13 @@ class Chain:
         self.db = db()
         self.eval = None
 
+        self.config = {
+            "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
+                         'storyline', 'difficulty', 'controls', 'player'],
+            "total_document_length": 1800 if self.llm.device['gpu'] else 1000,
+            "add_review_number": 1000,
+        }
+
     def __call__(self, name):
         # get reviews from db and set prompt for model
         
@@ -30,16 +37,17 @@ class Chain:
             self.db.delete_game(game[0])
 
         games = self.db.get_DB_game_list()
-        if name not in games:
-            self.db.add_reviews(name, n=1000)
+        if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
+            self.db.add_reviews(name, n=self.config["add_review_number"])
 
     def get_length(self, documents):
-        # get total length of documents
+        # get total number of tokens in documents
 
         total_length = 0
         for document in documents:
             for text in document:
                 total_length += len(text)
+
         return total_length
 
     def set_document(self, name):
@@ -47,15 +55,14 @@ class Chain:
         # limit document length to 1000
         # return document as string
 
-        keywords = ['size', 'graphic', 'gameplay', 'sound', 'target', 'storyline', 'difficulty', 'controls', 'player']
         documents = []
         str_docs = ''
 
-        for keyword in keywords:
+        for keyword in self.config["keywords"]:
             document = self.db.get_query_text(name, keyword, n=20)
             documents.append(document)
 
-        while self.get_length(documents) > 1000:
+        while self.get_length(documents) > self.config["total_document_length"]:
             for document in documents:
                 document.pop(len(document)-1)
 
@@ -69,7 +76,7 @@ class Chain:
         # Define the prompt template for the model        
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
             Reviews: {game_reviews}
-            Prompt: Tell me about the game {name}. [/INST]
+            Prompt: Briefly tell me about the game {name} with different aspects. [/INST]
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])

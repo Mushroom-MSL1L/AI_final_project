@@ -11,22 +11,36 @@ import sys
 # llama.cpp/llama-2-7b-chat.Q5_K_M.gguf accepts max 512 tokens
 # llama.cpp-python constructor and call method: 
 # https://api.python.langchain.com/en/latest/llms/langchain_community.llms.llamacpp.LlamaCpp.html#langchain_community.llms.llamacpp.LlamaCpp
+
 class LLM:
     def __init__(self):
-        self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q5_K_M.gguf"
+        self.device = {
+            "gpu": True,
+        }
+
+        self.config = {
+            "max_tokens": 500,
+            "n_ctx": 2048 if self.device['gpu'] else 1024,
+            "n_batch": 512 if self.device['gpu'] else 8,
+            "n_gpu_layers": -1 if self.device['gpu'] else None,
+        }
+
+        self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q4_K_M.gguf" if self.device['gpu'] else r"Model/llama.cpp/llama-2-13b-chat.Q4_K_M.gguf" 
+
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-        self.callback_manager = None
+        
         self.model = LlamaCpp(
-            #input include begging token + end token
+            #begining token + end token counted as 2 tokens in the input
+
             model_path=self.model_path,
-            callback_manager=self.callback_manager,
-            streaming=True,
-            #n_gpu_layers=-1,   #Use GPU acceleration
+            callback_manager=self.callback_manager,     #log output
+            n_ctx=self.config['n_ctx'],                 #context window, input length
+            max_tokens=self.config['max_tokens'],       #output length
+            n_gpu_layers=self.config['n_gpu_layers'],   #number of layers             
+            n_batch=self.config['n_batch'],
+            verbose=True,                               #output
             top_p=1,
-            temperature=0.0,
-            n_ctx=1024,         #context window, input length
-            max_tokens=1000,    #output length
-            verbose=True,       #output 
+            temperature=0.5,
         )
         
         self.cache_path = "cache.pkl"
