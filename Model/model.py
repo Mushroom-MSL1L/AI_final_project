@@ -25,7 +25,7 @@ class LLM:
             "n_gpu_layers": -1 if self.device['gpu'] else None,
         }
 
-        self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q4_K_M.gguf" if self.device['gpu'] else r"Model/llama.cpp/llama-2-13b-chat.Q4_K_M.gguf" 
+        self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q4_K_M.gguf"
 
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         
