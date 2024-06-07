@@ -1,28 +1,32 @@
-# AI final project Steam-Hot-Comment-Fetcher (SHCT)
+# AI final project --- STEAM (Steam top expert analysis machine)
 
-"notice" : Llama 2 is licensed under the LLAMA 2 Community License, 
-Copyright (c) Meta Platforms, Inc. All Rights Reserved.
+* ***Llama 2 is licensed under the LLAMA 2 Community License, Copyright (c) Meta Platforms, Inc. All Rights Reserved.***
+
+* The project is a final project for NYCU CS AI course.
 
 ## Introduction
-* It's a project that can fetch the hot comments of the steam game.
-* The project is a final project for NYCU CS AI course.
-* Using LLM to generate the comments of the steam game.
+* It's a project that can analysis the hot comments of the steam game.
+* By clicking down a game name in UI, this program will automatically search the top comments of the game, and llama will organize top comments as a brief summerization. 
+* If you want to know whether a game is good or not, but you don't rely on the grading, besides, you don't want to look reviews one by one. This program is extraordinary suit for you. 
 
-## How to download gguf Model, for llama.cpp
-* Please access following HuggingFace to download .gguf file(not .ggml): https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/tree/main
-* notice that after putting your model in directory, please change model_path in the class LLM
+## How to set up 
+* programming language
+    * We are recommend to use `python 3.10` or higher.
+* packages 
+    * cd to this folder `AI_final_project_SteamHotCommentFetcher\`
+    * run `pip install -r requirements.txt`
+* model
+    * This repo do not provide model, you need to download a one. 
+    * Download ```llama-2-7B.Q4_k_M model``` as ```gguf``` file from [here](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf), so that you don't need to change any code.
+    * Rename the file name as `llama-2-7b-chat.Q4_K_M.gguf`.
+    * Make a folder whose name is `llama.cpp` under ```Model``` folder. And put your gguf file in it. There should has a path like ```AI_final_project_SteamHotCommentFetcher\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
+    * More information can take a look at `supplement.md`.
 
-## How to use model.py
-* class LLM: you can directly use llama2 and get the output for the question prompt
-* class Chain: chain llm and database for purpose. you can use the retriver to get the related context from database, then feed the additioinal information for llm.
+## How to use 
 
-## How to download llama model
-* You can download the llama model from the following two options.
-    * You will need to request access from Meta AI to receive download links
-        * [llama request](https://llama.meta.com/llama-downloads/)
-    * Access meta-llama models on HuggingFace.
-        * [hugging face](https://huggingface.co/meta-llama)
-* Once you got approved, download the Llama model of your preference. For example, let’s say, you downloaded the llama-2–7b (the smallest) model.
-* And the following instructions can look this link. [Llama 2 models for text embedding](https://medium.com/@liusimao8/using-llama-2-models-for-text-embedding-with-langchain-79183350593d)
-    * note : If your are using MAC, in the convertion step, it may generate gguf file not bin file. And you need to ```./quantize ./models/llama-2-7b/llama-2-7b-7B-F32.gguf models/llama-2-7b/llama-2-7b-7B-F32-q4_0.gguf q4_0
-``` rather than ```./quantize ./models/llama-2-7b/llama-2-7b-7B-F32.bin models/llama-2-7b/llama-2-7b-7B-F32-q4_0.bin q4_0```
+## Contributor 
+
+
+## to do 
+* describe your functionality
+* describe the steps of reproducibility at the end of the project

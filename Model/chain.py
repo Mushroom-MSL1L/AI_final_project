@@ -2,16 +2,17 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain, StuffDocumentsChainr
 
 from .model import LLM
 from DB import db
+from Evaluation import TFIDF
 
 class Chain:
     def __init__(self):
         self.llm = LLM()
         self.db = db()
         self.eval = None
+        self.config = {}
 
     def __call__(self, name):
         # get reviews from db and set prompt for model
@@ -32,10 +33,11 @@ class Chain:
             self.db.delete_game(game[0])
 
         games = self.db.get_DB_game_list()
-        if name not in games:
-            self.db.add_reviews(name, n=1000)
+        add_num = 1000
+        if name not in games or self.db.get_game_review_number(name) < add_num:
+            self.db.add_reviews(name, add_num)
 
-    def get_length(self, documents):
+    def get_document_length(self, documents):
         # get total length of documents
 
         total_length = 0
@@ -54,10 +56,10 @@ class Chain:
         str_docs = ''
 
         for keyword in keywords:
-            document = self.db.get_query_text(name, keyword, n=20)
+            document = self.db.get_query_text(name, keyword, n=20) # get document number = n * keywords number
             documents.append(document)
 
-        while self.get_length(documents) > 1000:
+        while self.get_document_length(documents) > 1000:
             for document in documents:
                 document.pop(len(document)-1)
 
@@ -90,9 +92,12 @@ class Chain:
         testChain = Chain()
         response = testChain("Forza Horizon 4")
         print("response: ", response)
+        ### new edit ###
+        reviews = testChain.db.get_game_all_reviews("Forza Horizon 4")
+        tfidf = TFIDF()
+        tfidf.load_data(reviews)
+        print("score: ", tfidf.evaluate(response, n=1000))
 
-        
-    
 #test LLM
 # prompt = """You are a helpful AI assistant.
 #         If you don't know the answer to a question, don't share false information.   

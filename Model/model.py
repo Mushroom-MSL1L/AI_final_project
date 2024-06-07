@@ -23,7 +23,7 @@ class LLM:
             top_p=1,
             temperature=0.0,
             n_ctx=1024,         #context window, input length
-            max_tokens=1000,    #output length
+            max_tokens=500,    #output length
             verbose=True,       #output 
         )
         

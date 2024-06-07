@@ -5,6 +5,8 @@ from chromadb.utils import embedding_functions
 
 from .api import API
 from .preprocess import preprocess
+from .tools import get_path
+
 current_dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, current_dir_path)
 
@@ -69,6 +71,18 @@ class db ():
             where={'game_name': game_name},
             query_texts = query,
             n_results=n)
+    
+    def get_game_all_reviews(self, game_name):
+        results = self.collection.get(
+            where={'game_name': game_name},
+            include=['documents'],
+        )
+        data = results['documents']
+        game_review_file_name = 'data/' + game_name + '_reviews.txt'
+        with open(get_path(game_review_file_name), 'w') as file:
+            for i, review in enumerate(data):
+                file.write(str(i) + '\t' + review + '\n')
+        return data
             
     def get_query_text(self, game_name, query, n=5, max_len=10000000):
         row_data = self.get_query(game_name, query, n)['documents'][0]
@@ -127,11 +141,12 @@ class db ():
         return is_deleted, has_game
 
 ### Example
-DB = db()
-# DB.add_reviews('Forza Horizon 4')
+# DB = db()
+# DB.add_reviews('Forza Horizon 4', n=100)
 # DB.add_reviews('Stardew Valley')
 # print('query: ', DB.get_query_text('Forza Horizon 4', 'fun game', n=10, max_len=2))
 # print('#(Forza Horizon 4): ', DB.get_game_review_number('Forza Horizon 4'))
+# print('all reviews: ', DB.get_game_all_reviews('Forza Horizon 4'))
 # print('#(Stardew Valley): ', DB.get_game_review_number('Stardew Valley'))
 # print('#', DB.get_game_number())
 # DB.delete_game('Stardew Valley')
