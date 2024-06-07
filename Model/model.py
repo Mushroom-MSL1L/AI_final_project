@@ -8,7 +8,6 @@ import pickle
 import os
 import sys
 
-# llama.cpp/llama-2-7b-chat.Q5_K_M.gguf accepts max 512 tokens
 # llama.cpp-python constructor and call method: 
 # https://api.python.langchain.com/en/latest/llms/langchain_community.llms.llamacpp.LlamaCpp.html#langchain_community.llms.llamacpp.LlamaCpp
 
@@ -19,7 +18,7 @@ class LLM:
         }
 
         self.config = {
-            "max_tokens": 500,
+            "max_tokens": 300,
             "n_ctx": 4096 if self.device['gpu'] else 1024,
             "n_batch": 512 if self.device['gpu'] else 8,
             "n_gpu_layers": -1 if self.device['gpu'] else None,
@@ -33,7 +32,7 @@ class LLM:
             #begining token + end token counted as 2 tokens in the input
 
             model_path=self.model_path,
-            callback_manager=self.callback_manager,     #log output
+            #callback_manager=self.callback_manager,     #log output
             n_ctx=self.config['n_ctx'],                 #context window, input length
             max_tokens=self.config['max_tokens'],       #output length
             n_gpu_layers=self.config['n_gpu_layers'],   #number of layers             
@@ -48,24 +47,12 @@ class LLM:
         self.set_cache_path()
         self.load_cache()
 
-    def __call__(self, question):
-        return self.cache_output(question)
-
-    def set_callback(self, callback):
-        self.model.callback_manager = callback
-
-    def set_nctx(self, n_ctx):
-        self.model.n_ctx = n_ctx
-
-    def set_max_tokens(self, max_tokens):
-        self.model.max_tokens = max_tokens
+    def __call__(self, question, prompt, document, name):
+        return self.game_output(question=question, prompt=prompt, document=document, name=name)
     
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
             self.save_cache()
-
-    def set_callback(self, callback):
-        self.model.callback_manager = callback
 
     def get_llm(self):
         return self.llm
@@ -76,7 +63,7 @@ class LLM:
         
     def save_cache(self):
         with open(self.cache_path, 'wb') as f:
-            if len(self.cache) > 100:
+            if len(self.cache) > 1000:
                 self.cache.remove(self.cache[0])
             pickle.dump(self.cache, f)
     
@@ -100,16 +87,12 @@ class LLM:
         response = self.model.invoke(question)
         return response
 
-    def gamechain_output(self, question, document, name):
-        llm_chain = question | self.model
-        response = llm_chain.invoke({"game_reviews": document, "name": name})
-        return response
     
     def template_output(self, question):
         question = self.prompt_template(question)
         response = self.model.invoke(question)
         return response
-    
+
     def cache_output(self, question):
         question = self.prompt_template(question)
         if question in self.cache:
@@ -119,12 +102,16 @@ class LLM:
             self.cache[question] = response
             self.save_cache() 
             return response
-
-class MyCustomHandler(BaseCallbackHandler):
-    def on_llm_new_token(self, token: str, **kwargs) -> None:
-        return token
-
-
+    
+    def game_output(self, question, prompt, document, name):
+        if question in self.cache:
+            return self.cache[question]
+        else:
+            chain = prompt | self.model
+            response = chain.invoke({"game_reviews": document, "name": name})
+            self.cache[question] = response
+            self.save_cache() 
+            return response
 
 # llm = LLM()
 # response = llm("What is the capital of France?")

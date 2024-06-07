@@ -24,9 +24,9 @@ class Chain:
         # get reviews from db and set prompt for model
         
         self.update_db(name) # update db and add reviews
-        prompt = self.set_prompt()
+        template, prompt = self.set_prompt()
         document = self.set_document(name)
-        result = self.output_chain(name, document, prompt)
+        result = self.output_chain(name, document, template, prompt)
         return result
 
     def update_db(self, name):
@@ -60,7 +60,7 @@ class Chain:
         str_docs = ''
 
         for keyword in self.config["keywords"]:
-            document = self.db.get_query_text(name, keyword, n=20, max_len=10000000)
+            document = self.db.get_query_text(name, keyword, n=20, max_len=self.config["max_docs_length"])
             documents.append(document)
 
         while self.get_length(documents) > self.config["total_document_length"]:
@@ -81,20 +81,19 @@ class Chain:
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
-        return prompt
+        return template, prompt
     
-    def output_chain(self, name, document, prompt):
+    def output_chain(self, name, document, template, prompt):
         # Define the chain of models to be used
         if document == '':
             return "No reviews found for the game."
 
-        chain = prompt | self.llm.model
-        result = chain.invoke({"game_reviews": document, "name": name})
+        question = template.format(game_reviews=document, name=name)
+        result = self.llm(question, prompt, document, name)
         return result
 
     def test_chain():
         # test chain, not for practical use
-
         testChain = Chain()
         response = testChain("Forza Horizon 4")
         print("response: ", response)
@@ -120,19 +119,19 @@ class Chain:
 
 #test LLMChain
 # llm = LLM()
-#         template = """
-#                 <s>[INST]<<SYS>>
-#                 You are an AI assistant.
-#                 Ensure that your response is informative and based on the provided reviews.
-#                 <</SYS>>
-#                 Reviews:{game_reviews}
-#                 Prompt: Summarize the reviews for {name}.
-#                 [/INST]
-#                 """
-#         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
-#         #llm_chain = LLMChain(prompt=prompt, llm=llm.model) # if dictionary time needed
-#         llm_chain = prompt | llm.model # if only string type output result needed
-#         gamereviews = "['A fun game to play and I love how the cars are', 'I am hooked to this thing. It is fun. Can you believe that? A fun game?', 'its a fun multi and single player game with lots to do', 'Bought this game thinking that my friends who also bought it would play with me. Boy was I wrong. Fun game though will continue to be sad and play alone.', 'Wonderful game. If you are so done with your life this game can help you']"
-#         result = llm_chain.invoke({"game_reviews": gamereviews, "name": "Forza Horizon 4"})
-#         print("result: ")
-#         print(result)
+# template = """
+#         <s>[INST]<<SYS>>
+#         You are an AI assistant.
+#         Ensure that your response is informative and based on the provided reviews.
+#         <</SYS>>
+#         Reviews:{game_reviews}
+#         Prompt: Summarize the reviews for {name}.
+#         [/INST]
+#         """
+# prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
+# #llm_chain = LLMChain(prompt=prompt, llm=llm.model) # if dictionary time needed
+# llm_chain = prompt | llm.model # if only string type output result needed
+# gamereviews = "['A fun game to play and I love how the cars are', 'I am hooked to this thing. It is fun. Can you believe that? A fun game?', 'its a fun multi and single player game with lots to do', 'Bought this game thinking that my friends who also bought it would play with me. Boy was I wrong. Fun game though will continue to be sad and play alone.', 'Wonderful game. If you are so done with your life this game can help you']"
+# result = llm_chain.invoke({"game_reviews": gamereviews, "name": "Forza Horizon 4"})
+# print("result: ")
+# print(result)
