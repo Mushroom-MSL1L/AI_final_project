@@ -14,9 +14,10 @@ class Chain:
 
         self.config = {
             "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
-                         'storyline', 'difficulty', 'controls', 'price'],
-            "total_document_length": 1800 if self.llm.device['gpu'] else 1000,
-            "add_review_number": 1000,
+                         'storyline', 'difficulty', 'controls', 'price', 'player'],
+            "total_document_length": 3800 if self.llm.device['gpu'] else 900,
+            "add_review_number": 1000, 
+            "max_docs_length": 300 if self.llm.device['gpu'] else 90,
         }
 
     def __call__(self, name):
@@ -59,7 +60,7 @@ class Chain:
         str_docs = ''
 
         for keyword in self.config["keywords"]:
-            document = self.db.get_query_text(name, keyword, n=20)
+            document = self.db.get_query_text(name, keyword, n=20, max_len=10000000)
             documents.append(document)
 
         while self.get_length(documents) > self.config["total_document_length"]:

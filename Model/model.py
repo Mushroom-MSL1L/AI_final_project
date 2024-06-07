@@ -20,7 +20,7 @@ class LLM:
 
         self.config = {
             "max_tokens": 500,
-            "n_ctx": 2048 if self.device['gpu'] else 1024,
+            "n_ctx": 4096 if self.device['gpu'] else 1024,
             "n_batch": 512 if self.device['gpu'] else 8,
             "n_gpu_layers": -1 if self.device['gpu'] else None,
         }
@@ -49,7 +49,7 @@ class LLM:
         self.load_cache()
 
     def __call__(self, question):
-        return self.template_output(question)
+        return self.cache_output(question)
 
     def set_callback(self, callback):
         self.model.callback_manager = callback
@@ -109,11 +109,10 @@ class LLM:
         question = self.prompt_template(question)
         response = self.model.invoke(question)
         return response
-
+    
     def cache_output(self, question):
         question = self.prompt_template(question)
         if question in self.cache:
-            print("Using cached response")
             return self.cache[question]
         else:
             response = self.model.invoke(question)
