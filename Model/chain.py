@@ -14,7 +14,7 @@ class Chain:
 
         self.config = {
             "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
-                         'storyline', 'difficulty', 'controls', 'player'],
+                         'storyline', 'difficulty', 'controls', 'price'],
             "total_document_length": 1800 if self.llm.device['gpu'] else 1000,
             "add_review_number": 1000,
         }
