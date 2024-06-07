@@ -1,7 +1,7 @@
 import chainlit as cl
-import model
+from Model import chain
 
-chain = model.Chain()
+chain = chain.Chain()
 
 @cl.on_chat_start
 async def main():
