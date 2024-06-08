@@ -23,7 +23,9 @@ class Chain:
     def __call__(self, name):
         # get reviews from db and set prompt for model
         
-        self.update_db(name) # update db and add reviews
+        if not self.update_db(name): # update db and add reviews
+            return "No. of reviews for the game is not enough."
+
         template, prompt = self.set_prompt()
         document = self.set_document(name)
         result = self.output_chain(name, document, template, prompt)
@@ -31,15 +33,23 @@ class Chain:
 
     def update_db(self, name):
         # db size limit 10
+        # check num of reviews
         # add reviews if not in db
+        # return True if reviews are added
+        # return False if reviews(not enough) are not added
 
         game = self.db.get_DB_game_list()
         if len(game) > 10:
             self.db.delete_game(game[0])
 
+        if self.db.get_game_review_number(name) < 100:
+            return False
+
         games = self.db.get_DB_game_list()
         if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
             self.db.add_reviews(name, n=self.config["add_review_number"])
+
+        return True
 
     def get_length(self, documents):
         # get total number of tokens in documents
