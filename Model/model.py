@@ -18,7 +18,7 @@ class LLM:
         }
 
         self.config = {
-            "max_tokens": 300,
+            "max_tokens": 256,
             "n_ctx": 4096 if self.device['gpu'] else 1024,
             "n_batch": 512 if self.device['gpu'] else 8,
             "n_gpu_layers": -1 if self.device['gpu'] else None,
@@ -39,7 +39,7 @@ class LLM:
             n_batch=self.config['n_batch'],
             verbose=True,                               #output
             top_p=1,
-            temperature=0.5,
+            temperature=0.1,
         )
         
         self.cache_path = "cache.pkl"

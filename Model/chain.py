@@ -23,12 +23,10 @@ class Chain:
     def __call__(self, name):
         # get reviews from db and set prompt for model
         
-        if not self.update_db(name): # update db and add reviews
-            return "No. of reviews for the game is not enough."
-
+        enoughreview =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         document = self.set_document(name)
-        result = self.output_chain(name, document, template, prompt)
+        result = self.output_chain(name, enoughreview, document, template, prompt)
         return result
 
     def update_db(self, name):
@@ -42,13 +40,12 @@ class Chain:
         if len(game) > 10:
             self.db.delete_game(game[0])
 
-        if self.db.get_game_review_number(name) < 100:
-            return False
-
         games = self.db.get_DB_game_list()
         if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
             self.db.add_reviews(name, n=self.config["add_review_number"])
-
+        
+        if self.db.get_game_review_number(name) < 100:
+            return False
         return True
 
     def get_length(self, documents):
@@ -87,16 +84,18 @@ class Chain:
         # Define the prompt template for the model        
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
             Reviews: {game_reviews}
-            Prompt: Briefly tell me about the game {name} with different aspects. [/INST]
+            Prompt: Briefly tell me about the game {name} with different categories. [/INST]
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return template, prompt
     
-    def output_chain(self, name, document, template, prompt):
+    def output_chain(self, name, enoughreview, document, template, prompt):
         # Define the chain of models to be used
         if document == '':
             return "No reviews found for the game."
+        elif not enoughreview:
+            return "Not enough reviews found for the game."
 
         question = template.format(game_reviews=document, name=name)
         result = self.llm(question, prompt, document, name)
