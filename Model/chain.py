@@ -82,7 +82,7 @@ class Chain:
         # Define the prompt template for the model        
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
             Reviews: {game_reviews}
-            Prompt: Briefly tell me about the game {name} with different categories. [/INST]
+            Prompt: Briefly tell me about the game {name} separating with different categories. [/INST]
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
@@ -101,21 +101,14 @@ class Chain:
 
     def test_chain():
         # test chain, not for practical use
+        games = ['Forza Horizon 4', 'Cyberpunk 2077', 'The Witcher 3: Wild Hunt', 'Grand Theft Auto V', 
+                 'Red Dead Redemption 2', 'The Legend of Zelda: Breath of the Wild', 'The Elder Scrolls V: Skyrim', 
+                 'The Last of Us Part II', 'God of War', 'Horizon Zero Dawn']
+        
         testChain = Chain()
-        response = testChain("Forza Horizon 4")
-        print("response: ", response)
-
-        testChain = Chain()
-        response = testChain("Forza Horizon 5")
-        print("response: ", response)
-
-        testChain = Chain()
-        response = testChain("ELDEN RING")
-        print("response: ", response)
-
-        testChain = Chain()
-        response = testChain("Nine Sols")
-        print("response: ", response)
+        for game in games:
+            response = testChain(game)
+            print("{game}: ", game, response)
 
 
 
