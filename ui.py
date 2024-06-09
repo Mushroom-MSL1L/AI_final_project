@@ -1,6 +1,7 @@
 import chainlit as cl
 from Model import chain
-
+import time
+import asyncio
 chain = chain.Chain()
 
 @cl.on_chat_start
@@ -14,10 +15,13 @@ async def main():
 
 @cl.on_message
 async def main(message: str):
-    await cl.Message(
-            # content=f"The game name is: {message.content}.",
-            content = chain(message.content),
-    ).send()
+    loading_msg = cl.Message(content="loading, please wait...")
+    await loading_msg.send()
+
+    result = await asyncio.to_thread(chain, message.content)
+
+    loading_msg.content = result
+    await loading_msg.update()
 
 @cl.on_chat_end
 def on_chat_end():
