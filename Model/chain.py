@@ -24,10 +24,10 @@ class Chain:
 
     def __call__(self, name):
         # get reviews from db and set prompt for model
-        enoughreview =  self.update_db(name) # update db and add reviews
+        enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         document = self.set_document(name)
-        result = self.output_chain(name, enoughreview, document, template, prompt)
+        result = self.output_chain(name, id, enoughreview, document, template, prompt)
         return result
 
     def update_db(self, name):
@@ -36,6 +36,8 @@ class Chain:
         # return True if reviews are enough
         # return False if reviews are not enough
 
+        noID = None
+
         game = self.db.get_DB_game_list()
         if len(game) > 10:
             self.db.delete_game(game[0])
@@ -43,11 +45,14 @@ class Chain:
         games = self.db.get_DB_game_list()
 
         if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
-            self.db.add_reviews(name, n=self.config["add_review_number"])
+            if self.db.add_reviews(name, n=self.config["add_review_number"]):
+                noID = True
+            else:
+                noID = False
         
         if self.db.get_game_review_number(name) < 100:
-            return False
-        return True
+            return False, noID
+        return True, noID
 
     def get_length(self, documents):
         # get total number of tokens in documents
@@ -70,7 +75,7 @@ class Chain:
         for keyword in self.config["keywords"]:
             document = self.db.get_query_text(name, keyword, n=20, max_len=self.config["max_docs_length"]) # get document number = n * keywords number
             documents.append(document)
-
+        
         while self.get_length(documents) > self.config["total_document_length"]:
             for document in documents:
                 document.pop(len(document)-1)
@@ -91,9 +96,11 @@ class Chain:
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return template, prompt
     
-    def output_chain(self, name, enoughreview, document, template, prompt):
+    def output_chain(self, name, id, enoughreview, document, template, prompt):
         # Define the chain of models to be used
-        if document == '':
+        if id == False:
+            return "game not found on Steam. Please check the game name."
+        elif document == '':
             return "No reviews found for the game."
         elif not enoughreview:
             return "Not enough reviews found for the game."

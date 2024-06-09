@@ -6,6 +6,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain_core.output_parsers import StrOutputParser
 
 import pickle
+import torch
 import os
 import sys
 
@@ -15,7 +16,7 @@ import sys
 class LLM:
     def __init__(self):
         self.device = {
-            "gpu": False,
+            "gpu": True if torch.cuda.is_available() else False,
         }
 
         self.config = {
