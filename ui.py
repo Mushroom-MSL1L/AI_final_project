@@ -2,16 +2,16 @@ import chainlit as cl
 from Model import chain
 import time
 import asyncio
+
 chain = chain.Chain()
 
 @cl.on_chat_start
 async def main():
-    res = await cl.AskUserMessage(content="Welcome to Steam-Hot-Comment-Fetcher (SHCT)!\nPlease type your name.", timeout=30).send()
+    res = await cl.AskUserMessage(content="Welcome to Steam Top Expert Analysis Machine (STEAM)!\nPlease type your name.", timeout=30).send()
     if res:
         await cl.Message(
             content=f"Your name is: {res['output']}.\nChainlit installation is working!\nYou can now start typing the game name!",
         ).send()
-
 
 @cl.on_message
 async def main(message: str):
