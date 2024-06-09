@@ -22,7 +22,6 @@ class Chain:
 
     def __call__(self, name):
         # get reviews from db and set prompt for model
-        
         enoughreview =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         document = self.set_document(name)
@@ -31,10 +30,9 @@ class Chain:
 
     def update_db(self, name):
         # db size limit 10
-        # check num of reviews
-        # add reviews if not in db
-        # return True if reviews are added
-        # return False if reviews(not enough) are not added
+        # add reviews if reviews for the game not in db or less than 100
+        # return True if reviews are enough
+        # return False if reviews are not enough
 
         game = self.db.get_DB_game_list()
         if len(game) > 10:
@@ -96,7 +94,7 @@ class Chain:
             return "No reviews found for the game."
         elif not enoughreview:
             return "Not enough reviews found for the game."
-
+        
         question = template.format(game_reviews=document, name=name)
         result = self.llm(question, prompt, document, name)
         return result
@@ -106,6 +104,20 @@ class Chain:
         testChain = Chain()
         response = testChain("Forza Horizon 4")
         print("response: ", response)
+
+        testChain = Chain()
+        response = testChain("Forza Horizon 5")
+        print("response: ", response)
+
+        testChain = Chain()
+        response = testChain("ELDEN RING")
+        print("response: ", response)
+
+        testChain = Chain()
+        response = testChain("Nine Sols")
+        print("response: ", response)
+
+
 
         
     
