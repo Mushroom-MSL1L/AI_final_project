@@ -39,8 +39,8 @@ class LLM:
             n_gpu_layers=self.config['n_gpu_layers'],   #number of layers             
             n_batch=self.config['n_batch'],
             verbose=True,                               #output
-            top_p=0.9,                                  #prevent model from generating low probability tokens  
-            top_k=50,                                   #top k tokens for next token prediction    
+            top_p=1,                                    #prevent model from generating low probability tokens  
+            top_k=40,                                   #top k tokens for next token prediction    
         )
         
         self.cache_path = "cache.pkl"

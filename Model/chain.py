@@ -5,7 +5,6 @@ from langchain.chains import LLMChain
 
 from .model import LLM
 from DB import db
-from Evaluation import TFIDF
 
 class Chain:
     def __init__(self):
@@ -26,8 +25,8 @@ class Chain:
         # get reviews from db and set prompt for model
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
-        document = self.set_document(name)
-        result = self.output_chain(name, id, enoughreview, document, template, prompt)
+        str_docs, list_docs = self.set_document(name)
+        result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
         return result
 
     def update_db(self, name):
@@ -70,6 +69,7 @@ class Chain:
         # return document as string
 
         documents = []
+        list_docs = []
         str_docs = ''
 
         for keyword in self.config["keywords"]:
@@ -83,14 +83,16 @@ class Chain:
         for document in documents:
             for text in document:
                 str_docs += text + ' '
+                list_docs.append(text)
 
-        return str_docs
+        return str_docs, list_docs
 
     def set_prompt(self):
         # Define the prompt template for the model        
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
             Reviews: {game_reviews}
             Prompt: Briefly tell me about the game {name} separating with different categories. [/INST]
+            Response: Insert a line break between each category.
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
@@ -119,6 +121,13 @@ class Chain:
         for game in games:
             response = testChain(game)
             print("{game}: ", game, response)
+
+    def eval_chain(self, name):
+        enoughreview, id =  self.update_db(name) # update db and add reviews
+        template, prompt = self.set_prompt()
+        str_docs, list_docs = self.set_document(name)
+        result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
+        return list_docs, result
 
 #test LLM
 # prompt = """You are a helpful AI assistant.
