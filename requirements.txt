@@ -1,9 +1,11 @@
-langchain==0.1.20
-langchain-community==0.0.38
-langchain-core==0.1.52
-chainlit==1.1.202
-Chroma==0.2.0
-llama_cpp_python==0.2.73
-gguf==0.6.0
-sentence-transformers==2.7.0
-langid==1.1.6
+langchain == 0.1.20
+langchain-community == 0.0.38
+langchain-core == 0.1.52
+chainlit == 1.1.202
+chromadb == 0.5.0
+llama_cpp_python == 0.2.73
+gguf == 0.6.0
+sentence-transformers == 2.7.0
+langid == 1.1.6
+chainlit == 1.1.202
+hf_transfer == 0.1.6

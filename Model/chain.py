@@ -14,36 +14,49 @@ class Chain:
         self.eval = None
         self.config = {}
 
+        self.config = {
+            "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
+                         'storyline', 'difficulty', 'controls', 'price', 'player'],
+            "total_document_length": 3800 if self.llm.device['gpu'] else 900,
+            "add_review_number": 1000, 
+            "max_docs_length": 300 if self.llm.device['gpu'] else 90,
+        }
+
     def __call__(self, name):
         # get reviews from db and set prompt for model
-        
-        self.update_db(name) # update db and add reviews
-
+        enoughreview =  self.update_db(name) # update db and add reviews
+        template, prompt = self.set_prompt()
         document = self.set_document(name)
-        prompt = self.set_prompt()
-        result = self.output_chain(name, document, prompt)
+        result = self.output_chain(name, enoughreview, document, template, prompt)
         return result
 
     def update_db(self, name):
         # db size limit 10
-        # add reviews if not in db
+        # add reviews if reviews for the game not in db or less than 100
+        # return True if reviews are enough
+        # return False if reviews are not enough
 
         game = self.db.get_DB_game_list()
         if len(game) > 10:
             self.db.delete_game(game[0])
 
         games = self.db.get_DB_game_list()
-        add_num = 1000
-        if name not in games or self.db.get_game_review_number(name) < add_num:
-            self.db.add_reviews(name, add_num)
 
-    def get_document_length(self, documents):
-        # get total length of documents
+        if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
+            self.db.add_reviews(name, n=self.config["add_review_number"])
+        
+        if self.db.get_game_review_number(name) < 100:
+            return False
+        return True
+
+    def get_length(self, documents):
+        # get total number of tokens in documents
 
         total_length = 0
         for document in documents:
             for text in document:
                 total_length += len(text)
+
         return total_length
 
     def set_document(self, name):
@@ -51,15 +64,14 @@ class Chain:
         # limit document length to 1000
         # return document as string
 
-        keywords = ['size', 'graphic', 'gameplay', 'sound', 'target', 'storyline', 'difficulty', 'controls', 'player']
         documents = []
         str_docs = ''
 
-        for keyword in keywords:
-            document = self.db.get_query_text(name, keyword, n=20) # get document number = n * keywords number
+        for keyword in self.config["keywords"]:
+            document = self.db.get_query_text(name, keyword, n=20, max_len=self.config["max_docs_length"]) # get document number = n * keywords number
             documents.append(document)
 
-        while self.get_document_length(documents) > 1000:
+        while self.get_length(documents) > self.config["total_document_length"]:
             for document in documents:
                 document.pop(len(document)-1)
 
@@ -73,30 +85,33 @@ class Chain:
         # Define the prompt template for the model        
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
             Reviews: {game_reviews}
-            Prompt: Tell me about the game {name}. [/INST]
+            Prompt: Briefly tell me about the game {name} separating with different categories. [/INST]
             """
         
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
-        return prompt
+        return template, prompt
     
-    def output_chain(self, name, document, prompt):
+    def output_chain(self, name, enoughreview, document, template, prompt):
         # Define the chain of models to be used
-
-        chain = prompt | self.llm.model
-        result = chain.invoke({"game_reviews": document, "name": name})
+        if document == '':
+            return "No reviews found for the game."
+        elif not enoughreview:
+            return "Not enough reviews found for the game."
+        
+        question = template.format(game_reviews=document, name=name)
+        result = self.llm(question, prompt, document, name)
         return result
 
     def test_chain():
         # test chain, not for practical use
-
+        games = ['Forza Horizon 4', 'Cyberpunk 2077', 'The Witcher 3: Wild Hunt', 'Grand Theft Auto V', 
+                 'Red Dead Redemption 2', 'The Legend of Zelda: Breath of the Wild', 'The Elder Scrolls V: Skyrim', 
+                 'The Last of Us Part II', 'God of War', 'Horizon Zero Dawn']
+        
         testChain = Chain()
-        response = testChain("Forza Horizon 4")
-        print("response: ", response)
-        ### new edit ###
-        reviews = testChain.db.get_game_all_reviews("Forza Horizon 4")
-        tfidf = TFIDF()
-        tfidf.load_data(reviews)
-        print("score: ", tfidf.evaluate(response, n=1000))
+        for game in games:
+            response = testChain(game)
+            print("{game}: ", game, response)
 
 #test LLM
 # prompt = """You are a helpful AI assistant.
@@ -117,19 +132,19 @@ class Chain:
 
 #test LLMChain
 # llm = LLM()
-#         template = """
-#                 <s>[INST]<<SYS>>
-#                 You are an AI assistant.
-#                 Ensure that your response is informative and based on the provided reviews.
-#                 <</SYS>>
-#                 Reviews:{game_reviews}
-#                 Prompt: Summarize the reviews for {name}.
-#                 [/INST]
-#                 """
-#         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
-#         #llm_chain = LLMChain(prompt=prompt, llm=llm.model) # if dictionary time needed
-#         llm_chain = prompt | llm.model # if only string type output result needed
-#         gamereviews = "['A fun game to play and I love how the cars are', 'I am hooked to this thing. It is fun. Can you believe that? A fun game?', 'its a fun multi and single player game with lots to do', 'Bought this game thinking that my friends who also bought it would play with me. Boy was I wrong. Fun game though will continue to be sad and play alone.', 'Wonderful game. If you are so done with your life this game can help you']"
-#         result = llm_chain.invoke({"game_reviews": gamereviews, "name": "Forza Horizon 4"})
-#         print("result: ")
-#         print(result)
+# template = """
+#         <s>[INST]<<SYS>>
+#         You are an AI assistant.
+#         Ensure that your response is informative and based on the provided reviews.
+#         <</SYS>>
+#         Reviews:{game_reviews}
+#         Prompt: Summarize the reviews for {name}.
+#         [/INST]
+#         """
+# prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
+# #llm_chain = LLMChain(prompt=prompt, llm=llm.model) # if dictionary time needed
+# llm_chain = prompt | llm.model # if only string type output result needed
+# gamereviews = "['A fun game to play and I love how the cars are', 'I am hooked to this thing. It is fun. Can you believe that? A fun game?', 'its a fun multi and single player game with lots to do', 'Bought this game thinking that my friends who also bought it would play with me. Boy was I wrong. Fun game though will continue to be sad and play alone.', 'Wonderful game. If you are so done with your life this game can help you']"
+# result = llm_chain.invoke({"game_reviews": gamereviews, "name": "Forza Horizon 4"})
+# print("result: ")
+# print(result)

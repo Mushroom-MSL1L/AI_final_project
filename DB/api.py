@@ -25,7 +25,10 @@ class API:
     def import_game_list(self):
         file = open(get_path('data/game_list.txt'), 'w')
         for game in self.id_list:
-            file.write(str(game['appid']) + '\t' +game['name'] + '\n')
+            try:
+                file.write(str(game['appid']) + '\t' +game['name'] + '\n')
+            except UnicodeEncodeError:
+                pass
 
     def get_game_Id (self, game_name):
         for game in self.id_list:
@@ -73,6 +76,7 @@ class API:
         while len(reviews) < n :
             r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
             row_data = r.json()
+
             if (('reviews' not in row_data) or (len(row_data['reviews']) == 0)) :
                 return reviews, cursor
             temp_reviews = []
@@ -109,7 +113,9 @@ class API:
     
     
 # a = API() # setup a new API object
+
 # a.import_game_list() # import game list to game_list.txt for human readable
+
 
 # name = 'Forza Horizon 4' # game name I want to search
 # name = 'ELDEN RING' # this game has a lot of reviews
