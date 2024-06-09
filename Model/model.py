@@ -3,6 +3,7 @@ from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHan
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks.base import BaseCallbackHandler
+from langchain_core.output_parsers import StrOutputParser
 
 import pickle
 import os
@@ -14,7 +15,7 @@ import sys
 class LLM:
     def __init__(self):
         self.device = {
-            "gpu": True,
+            "gpu": False,
         }
 
         self.config = {
@@ -27,19 +28,18 @@ class LLM:
         self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q4_K_M.gguf"
 
         self.callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-        
+
         self.model = LlamaCpp(
             #begining token + end token counted as 2 tokens in the input
-
             model_path=self.model_path,
-            #callback_manager=self.callback_manager,     #log output
+            callback_manager=self.callback_manager,     #log outputs
             n_ctx=self.config['n_ctx'],                 #context window, input length
             max_tokens=self.config['max_tokens'],       #output length
             n_gpu_layers=self.config['n_gpu_layers'],   #number of layers             
             n_batch=self.config['n_batch'],
             verbose=True,                               #output
-            top_p=1,
-            temperature=0.1,
+            top_p=0.9,                                  #prevent model from generating low probability tokens  
+            top_k=50,                                   #top k tokens for next token prediction    
         )
         
         self.cache_path = "cache.pkl"
@@ -64,7 +64,7 @@ class LLM:
     def save_cache(self):
         with open(self.cache_path, 'wb') as f:
             if len(self.cache) > 1000:
-                self.cache.remove(self.cache[0])
+                self.cache.remove(next(iter(self.cache)))
             pickle.dump(self.cache, f)
     
     def reset_cachefile(self):
@@ -87,7 +87,6 @@ class LLM:
         response = self.model.invoke(question)
         return response
 
-    
     def template_output(self, question):
         question = self.prompt_template(question)
         response = self.model.invoke(question)
