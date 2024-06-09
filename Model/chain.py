@@ -5,12 +5,14 @@ from langchain.chains import LLMChain
 
 from .model import LLM
 from DB import db
+from Evaluation import TFIDF
 
 class Chain:
     def __init__(self):
         self.llm = LLM()
         self.db = db()
         self.eval = None
+        self.config = {}
 
         self.config = {
             "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
@@ -39,6 +41,7 @@ class Chain:
             self.db.delete_game(game[0])
 
         games = self.db.get_DB_game_list()
+
         if name not in games or self.db.get_game_review_number(name) < self.config["add_review_number"]:
             self.db.add_reviews(name, n=self.config["add_review_number"])
         
@@ -65,7 +68,7 @@ class Chain:
         str_docs = ''
 
         for keyword in self.config["keywords"]:
-            document = self.db.get_query_text(name, keyword, n=20, max_len=self.config["max_docs_length"])
+            document = self.db.get_query_text(name, keyword, n=20, max_len=self.config["max_docs_length"]) # get document number = n * keywords number
             documents.append(document)
 
         while self.get_length(documents) > self.config["total_document_length"]:
@@ -110,10 +113,6 @@ class Chain:
             response = testChain(game)
             print("{game}: ", game, response)
 
-
-
-        
-    
 #test LLM
 # prompt = """You are a helpful AI assistant.
 #         If you don't know the answer to a question, don't share false information.   

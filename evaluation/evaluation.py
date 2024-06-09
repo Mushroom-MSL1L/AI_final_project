@@ -4,6 +4,7 @@ import nltk
 import re
 import numpy as np
 import os
+
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.spatial.distance import euclidean, cityblock, jaccard, canberra, braycurtis
 from scipy.stats import binomtest
@@ -60,6 +61,7 @@ class TFIDF() :
         lowest_scores_index = np.argsort(scores)[:n]
         lowest_features = [features[i] for i in lowest_scores_index]
         lowest_scores = [scores[i] for i in lowest_scores_index]
+
         return lowest_features, lowest_scores
 
     def extract_unique_words(self, text):
@@ -173,6 +175,7 @@ example_data = [
 # lowest_tfidf_scores = tfidf.get_lowest_tfidf_scores(n=3)
 # print("lowest TF-IDF Scores:", lowest_tfidf_scores[1])
 # print("lowest Features:", lowest_tfidf_scores[0])
+
 # print("only_idf_evaluate:", tfidf.only_idf_evaluate(" is a test TFIDF. ", n=3))
 
 ## example 2

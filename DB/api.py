@@ -76,7 +76,8 @@ class API:
         while len(reviews) < n :
             r = requests.get('https://store.steampowered.com/appreviews/{appid}?json=1'.format(appid=game_id), params=params)
             row_data = r.json()
-            if ('reviews' not in row_data or len(row_data['reviews']) == 0) :
+
+            if (('reviews' not in row_data) or (len(row_data['reviews']) == 0)) :
                 return reviews, cursor
             temp_reviews = []
             if r.status_code == 200:
