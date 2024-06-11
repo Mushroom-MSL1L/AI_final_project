@@ -18,7 +18,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Kennethii2i"><img src="https://avatars.githubusercontent.com/u/125580757?v=4?s=100" width="100px;" alt="Kennethii2i"/><br /><sub><b>Kennethii2i</b></sub></a><br /><a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/commits?author=Kennethii2i" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Kennethii2i"><img src="https://avatars.githubusercontent.com/u/125580757?v=4?s=100" width="100px;" alt="Kennethii2i"/><br /><sub><b>Kennethii2i</b></sub></a><br /><a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/commits?author=Kennethii2i" title="Code">💻</a> <a href="#maintenance-Kennethii2i" title="Maintenance">🚧</a></td>
     </tr>
   </tbody>
 </table>
