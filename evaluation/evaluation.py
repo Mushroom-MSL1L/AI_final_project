@@ -4,7 +4,6 @@ import nltk
 import re
 import numpy as np
 import os
-
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.spatial.distance import euclidean, cityblock, jaccard, canberra, braycurtis
 from scipy.stats import binomtest
@@ -61,7 +60,6 @@ class TFIDF() :
         lowest_scores_index = np.argsort(scores)[:n]
         lowest_features = [features[i] for i in lowest_scores_index]
         lowest_scores = [scores[i] for i in lowest_scores_index]
-
         return lowest_features, lowest_scores
 
     def extract_unique_words(self, text):
@@ -73,13 +71,12 @@ class TFIDF() :
     def only_idf_evaluate(self, row_data, n=100):
         if len(row_data) == 0 or n == 0:
             return 0
-        size = min(n, len(self.data))
         lowest_features, _ = self.get_lowest_tfidf_scores(n)
         object_data = self.extract_unique_words(row_data)
         is_exist = []
         for feature in lowest_features:
             is_exist.append(1 if feature in object_data else 0)
-        return sum(is_exist) / size
+        return sum(is_exist) / n
 
     def take_nomarlize(self, row_data):
         normed_row_data = self.tiv.transform([row_data]).toarray()[0] / np.linalg.norm(self.tiv.transform([row_data]).toarray()[0])
@@ -97,7 +94,6 @@ class TFIDF() :
             print("There is no data to compare.")
             return [0, 0, 0, 0, 0, 0]
         normed_row_data = self.take_nomarlize(row_data)
-        print("normed_row_data:", normed_row_data)
         scores = self.average_tfidf
         
         cosim = cosine_similarity([scores], [normed_row_data])
@@ -117,15 +113,13 @@ class TFIDF() :
     def conpare_with_cosine_similarity(self, row_data, challenger_data):
         data_cos = self.cosine_similarity(row_data)
         challenger_cos = self.cosine_similarity(challenger_data)
-        print("data_cos:", data_cos)
-        print("challenger_cos:", challenger_cos)
         if data_cos > challenger_cos:
             print("Our model is better.")
         elif data_cos < challenger_cos:
             print("Challenger model is better.")
 
     
-    def signed_rank_test (self, model_evaluations, challenger_evaluations, alpha=0.1):
+    def signed_rank_test (self, model_evaluations, challenger_evaluations, alpha=0.2):
         n = len(model_evaluations)
         if n != len(challenger_evaluations) or n == 0:
             return None
@@ -140,7 +134,12 @@ class TFIDF() :
         for i in range(n):
             signed_ranks.append(model_evaluations[i] - challenger_evaluations[i])
         signed_ranks = np.array(signed_ranks)
-        positive_ranks = np.sum(signed_ranks > 0)
+        positive_ranks = 0
+        if (signed_ranks[0] > 0) : 
+            positive_ranks += 1
+        for i in range(1, n):
+            if signed_ranks[i] < 0:
+                positive_ranks += 1
         zero_ranks = np.sum(signed_ranks == 0)
         if zero_ranks == n:
             print("The difference is not statistically significant.")
@@ -175,7 +174,6 @@ example_data = [
 # lowest_tfidf_scores = tfidf.get_lowest_tfidf_scores(n=3)
 # print("lowest TF-IDF Scores:", lowest_tfidf_scores[1])
 # print("lowest Features:", lowest_tfidf_scores[0])
-
 # print("only_idf_evaluate:", tfidf.only_idf_evaluate(" is a test TFIDF. ", n=3))
 
 ## example 2

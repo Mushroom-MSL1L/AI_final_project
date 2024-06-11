@@ -56,15 +56,24 @@ class db ():
 
     def add_reviews(self, game_name, n=100):
         game_id = self.a.get_game_Id(game_name)
+        print('game_id:', game_id)
+        if game_id == None or game_id <= 0:
+            return False
         c = self.get_cursor(game_name)
         r, c = self.a.get_reviews(game_id=game_id, n=n, cursor=c)
         self.set_or_update_cursor(game_name, c)
         offset = self.collection.count()
-        self.collection.add (
-            ids=[str(game_id)+"_"+str(offset+i) for i in range(len(r))],
-            documents=r,
-            metadatas=[{'game_id': game_id, 'game_name':game_name} for i in range(len(r))],
-        )
+        print('cursor: ', c)
+        try:
+            self.collection.add (
+                ids=[str(game_id)+"_"+str(offset+i) for i in range(len(r))],
+                documents=r,
+                metadatas=[{'game_id': game_id, 'game_name':game_name} for i in range(len(r))],
+            )
+        except:
+            return False
+
+        return True
 
     def get_query(self, game_name, query, n=5):
         return self.collection.query(
@@ -106,7 +115,7 @@ class db ():
         for r in results['metadatas']:
             if r['game_name'] == game_name:
                 count += 1
-        return count 
+        return count
     
     def get_game_number(self):
         results = self.cursor.get(

@@ -2,10 +2,11 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain_fireworks import Fireworks
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain_core.output_parsers import StrOutputParser
 
 import pickle
+import torch
 import os
 import sys
 
@@ -15,11 +16,11 @@ import sys
 class LLM:
     def __init__(self):
         self.device = {
-            "gpu": False,
+            "gpu": True if torch.cuda.is_available() else False,
         }
 
         self.config = {
-            "max_tokens": 256,
+            "max_tokens": 1024,
             "n_ctx": 4096 if self.device['gpu'] else 1024,
             "n_batch": 512 if self.device['gpu'] else 8,
             "n_gpu_layers": -1 if self.device['gpu'] else None,
@@ -38,10 +39,11 @@ class LLM:
             n_gpu_layers=self.config['n_gpu_layers'],   #number of layers             
             n_batch=self.config['n_batch'],
             verbose=True,                               #output
-            top_p=0.9,                                  #prevent model from generating low probability tokens  
-            top_k=50,                                   #top k tokens for next token prediction    
+            top_p=1,                                    #prevent model from generating low probability tokens  
+            top_k=40,                                   #top k tokens for next token prediction    
+            temparature = 0.0,                          #temparature for sampling
         )
-        
+
         self.cache_path = "cache.pkl"
         self.cache = {}
         self.set_cache_path()
@@ -50,6 +52,14 @@ class LLM:
     def __call__(self, question, prompt, document, name):
         return self.game_output(question=question, prompt=prompt, document=document, name=name)
     
+    def fireworks(self, prompt):
+        bot = Fireworks(
+            model="accounts/fireworks/models/llama-v3-70b-instruct", # model path in the server
+            max_tokens=512,
+        )
+        response = bot(prompt)
+        return response
+
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
             self.save_cache()
