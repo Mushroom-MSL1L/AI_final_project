@@ -23,11 +23,12 @@ class Chain:
             "add_review_number": 1000, 
             "max_docs_length": 300 if self.llm.device['gpu'] else 90,
         }
-        if self.llm.device['gpu']: config["key_words"].append('player')
+        if self.llm.device['gpu']: self.config["keywords"].append('player')
         load_dotenv()
 
     def __call__(self, name):
         # get reviews from db and set prompt for model
+
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
@@ -43,7 +44,7 @@ class Chain:
         # return True if reviews are enough
         # return False if reviews are not enough
 
-        noID = None
+        noID = None # if game not found on Steam
 
         game = self.db.get_DB_game_list()
         if len(game) > 10:
@@ -74,7 +75,11 @@ class Chain:
     def set_document(self, name):
         # add reviews to document from db regarding to keywords
         # limit document length to 1000
-        # return document as string
+        # return = {
+        #    str_docs: str,
+        #    list_docs: list
+        # }
+
 
         documents = []
         list_docs = []
@@ -96,13 +101,22 @@ class Chain:
         return str_docs, list_docs
 
     def set_prompt(self):
-        # Define the prompt template for the model        
+        # Define the prompt template for the model
+        # return: {
+        #    template: str,
+        #    prompt: PromptTemplate
+        # }        
         template = self.template.get_template() if self.llm.device['gpu'] else self.template.get_cpu_template()
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return template, prompt
     
     def output_chain(self, name, id, enoughreview, document, template, prompt):
         # Define the chain of models to be used
+        # return: {
+        #    error: bool,
+        #    error_message: str,
+        #    result: str
+        # }
 
         error = False
         error_message = None
@@ -124,6 +138,9 @@ class Chain:
         return error, error_message, result
 
     def extract_num(self, s):
+        # Extract the score from the model's output
+        # return: int or None
+
         match = re.search(r'\d+', s)
         if match:
             return int(match.group())
@@ -132,14 +149,22 @@ class Chain:
 
     def eval_chain(self, name):
         # Evaluate the model's output and the bot's output
+        # return: {
+        #    e: bool,
+        #    list_docs: list,
+        #    result: str,
+        #    bot_result: str,
+        #    int_score: int,
+        #    int_bot_score: int
+        # }
 
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
         
         # get our model's output
-        e, error_message, result = self.output_chain(name=name, id=id, enoughreview=enoughreview, document=str_docs, template=template, prompt=prompt) # our result
-
+        #e, error_message, result = self.output_chain(name=name, id=id, enoughreview=enoughreview, document=str_docs, template=template, prompt=prompt) # our result
+    
         # if error return error message
         if e:
             return error_message, list_docs, result, None, None, None
@@ -161,6 +186,13 @@ class Chain:
         return e, list_docs, result, bot_result, int_score, int_bot_score
 
     def analysis_chain(self, name):
+        # only return the running time of the model
+        # for evaluation purposes
+        # return: {
+        #    e: bool,
+        #    running_time: float
+        # }
+
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
@@ -174,6 +206,8 @@ class Chain:
 
     def score_prompt(self, name, document, model_output):
         # Define the prompt template for the score evaluation
+        # return: str
+        
         template = self.template.get_only_score_template()
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name', 'model_output'])
         str_score_prompt = prompt.format(name=name, game_reviews=document, model_output=model_output)
