@@ -7,6 +7,7 @@
   "commitType": "docs",
   "commitConvention": "angular",
   "contributors": [
+    
     {
       "login": "Kennethii2i",
       "name": "Kennethii2i",
@@ -15,6 +16,32 @@
       "contributions": [
         "code",
         "maintenance"
+      ]
+    },
+
+      {
+        "login": "Mushroom-MSL1L",
+        "name": "Lu Junyou",
+        "avatar_url": "https://avatars.githubusercontent.com/u/136601880?v=4",
+        "profile": "https://github.com/Mushroom-MSL1L",
+        "contributions": [
+          "code",
+          "bug",
+          "tutorial",
+          "review"
+        ]
+      },
+
+      {
+        "login": "WilsonNYCU",
+        "name": "WilsonNYCU",
+        "avatar_url": "https://avatars.githubusercontent.com/u/166817905?v=4",
+        "profile": "https://github.com/WilsonNYCU",
+        "contributions": [
+          "talk",
+          "code"
+        ]
+       }
       ]
     }
   ],
