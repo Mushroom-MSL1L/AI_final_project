@@ -1,5 +1,7 @@
 # AI final project --- STEAM (Steam top expert analysis machine)
-
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 * ***Llama 2 is licensed under the LLAMA 2 Community License, Copyright (c) Meta Platforms, Inc. All Rights Reserved.***
 
 * The project is a final project for NYCU CS AI course.
@@ -56,18 +58,25 @@
         * "The Witcher 3: Wild Hunt"
 * wait for a while, you will see the result.
 
-## Contributor 
-* [Kennethii2i](https://github.com/Kennethii2i)
-* [Lu Junyou, Mushroom-MSL1L](https://github.com/Mushroom-MSL1L)
-* [WilsonNYCU](https://github.com/WilsonNYCU)
+## Contributors ✨
 
-## Contributors
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
-
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/WilsonNYCU"><img src="https://avatars.githubusercontent.com/u/166817905?v=4?s=100" width="100px;" alt="WilsonNYCU"/><br /><sub><b>WilsonNYCU</b></sub></a><br /><a href="#talk-WilsonNYCU" title="Talks">📢</a> <a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/commits?author=WilsonNYCU" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+

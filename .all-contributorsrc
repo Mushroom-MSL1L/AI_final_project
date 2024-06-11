@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "WilsonNYCU",
+      "name": "WilsonNYCU",
+      "avatar_url": "https://avatars.githubusercontent.com/u/166817905?v=4",
+      "profile": "https://github.com/WilsonNYCU",
+      "contributions": [
+        "talk",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "NYCU-AI-Final-Project-STEAM",
+  "projectOwner": "Mushroom-MSL1L"
+}
