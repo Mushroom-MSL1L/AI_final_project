@@ -6,6 +6,7 @@ class Template:
         self.cpu_template = self.cpu_template()
         self.score_template = self.set_score_template()
         self.only_score_template = self.set_onlyscore_template()
+        self.clearformat_template = self.clearformat_template()
 
     def get_template(self):
         return self.template
@@ -18,10 +19,13 @@ class Template:
 
     def get_only_score_template(self):
         return self.only_score_template
+    
+    def get_clearformat_template(self):
+        return self.clearformat_template
 
     def cpu_template(self):
         template = """ [INST] <<SYS>> Ensure that your response is informative 
-                and based on the reviews. <</SYS>>
+                and based on the reviews. Output within the 256 words limit <</SYS>>
                 Reviews: {game_reviews}
                 Prompt: Briefly tell me about the game, {name}, with different categories.
                 Response: Break line for each categories [/INST]
@@ -29,10 +33,11 @@ class Template:
         return template
 
     def set_template(self):
-        template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
+        template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews.
+                Output within the 256 words limit <</SYS>>
                 Reviews: {game_reviews}
                 Prompt: Briefly tell me about the game {name} separating with different categories. example: graphic, gameplay.
-                Response: break line for each categories [/INST]
+                Response: Break line for each categories [/INST]
                 """
         return template
 
@@ -193,3 +198,41 @@ class Template:
                 [/INST]
                 """
         return only_score_template
+
+    def clearformat_template(self):
+        template = """
+                [INST] <<SYS>> Evaluate following statement with respect to the evaluation metrics.
+                Statement: {statement}
+
+                Evaluation Metrics: please evaluate if the statement is clear and easy to read and understand.
+
+                for example: 
+                    1. this is a clear statement because sentences are well structured and easy to read.
+                    '''
+                    Based on the reviews, here are some brief categories for the game Nine Sols:
+                    Art Style: The captivating art style of Nine Sols has been praised by many reviewers, making them want to continue exploring the game's world.
+                    Difficulty: While some reviewers have found the difficulty level to be challenging and enjoyable, others have expressed frustration with the game's hitboxes and difficulty in playing with a keyboard and mouse.
+                    Story: The interesting storyline of Nine Sols has been praised by many reviewers, with some finding it engaging and immersive.
+                    Gameplay: Reviewers have mixed opinions on the gameplay of Nine Sols, with some enjoying the challenge and others finding it frustrating due to poor hitboxes and difficulty in playing with a keyboard and mouse.
+                    Price: Despite some issues with the gameplay, many reviewers have praised the affordable price of Nine Sols, considering it a good value for the price.
+                    Overall, Nine Sols seems to be a game that can evoke strong emotions from players, either making them feel like a badass or like they're the worst player ever.
+                    '''
+                    Score: 10
+
+                    2. 
+
+                Score:
+                10: The statement is clear, easy to read, and understand.
+                7-9: The statement is mostly clear, with some areas that could be improved.
+                4-6: The statement is somewhat clear but may be difficult to read or understand in parts.
+                1-3: The statement is unclear and hard to read or understand.
+                0: The statement is completely incomprehensible.
+
+                Response: Provide your evaluation for the statement. 
+                
+                No need to provide a step-by-step evaluation.
+
+                Only print the score number.
+                [/INST]
+                """
+        return template

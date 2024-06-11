@@ -20,7 +20,7 @@ class LLM:
         }
 
         self.config = {
-            "max_tokens": 256,
+            "max_tokens": 1024,
             "n_ctx": 4096 if self.device['gpu'] else 1024,
             "n_batch": 512 if self.device['gpu'] else 8,
             "n_gpu_layers": -1 if self.device['gpu'] else None,
