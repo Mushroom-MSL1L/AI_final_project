@@ -59,4 +59,15 @@
 ## Contributor 
 * [Kennethii2i](https://github.com/Kennethii2i)
 * [Lu Junyou, Mushroom-MSL1L](https://github.com/Mushroom-MSL1L)
-* [WilsonNYCU](https://github.com/WilsonNYCU) 
+* [WilsonNYCU](https://github.com/WilsonNYCU)
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
