@@ -72,9 +72,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Mushroom-MSL1L"><img src="https://avatars.githubusercontent.com/u/136601880?v=4?s=100" width="100px;" alt="Lu Junyou"/><br /><sub><b>Lu Junyou</b></sub></a><br /><a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/commits?author=Mushroom-MSL1L" title="Code">💻</a> <a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/issues?q=author%3AMushroom-MSL1L" title="Bug reports">🐛</a> <a href="#tutorial-Mushroom-MSL1L" title="Tutorials">✅</a> <a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/pulls?q=is%3Apr+reviewed-by%3AMushroom-MSL1L" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
-</table>
 
-<table>
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/WilsonNYCU"><img src="https://avatars.githubusercontent.com/u/166817905?v=4?s=100" width="100px;" alt="WilsonNYCU"/><br /><sub><b>WilsonNYCU</b></sub></a><br /><a href="#talk-WilsonNYCU" title="Talks">📢</a> <a href="https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/commits?author=WilsonNYCU" title="Code">💻</a></td>
