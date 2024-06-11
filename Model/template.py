@@ -34,7 +34,7 @@ class Template:
 
     def set_template(self):
         template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews.
-                Output within the 256 words limit <</SYS>>
+                Output within the 512 words limit <</SYS>>
                 Reviews: {game_reviews}
                 Prompt: Briefly tell me about the game {name} separating with different categories. example: graphic, gameplay.
                 Response: Break line for each categories [/INST]
