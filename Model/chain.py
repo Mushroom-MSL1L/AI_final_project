@@ -248,3 +248,58 @@ class Chain:
 # result = llm_chain.invoke({"game_reviews": gamereviews, "name": "Forza Horizon 4"})
 # print("result: ")
 # print(result)
+
+
+# Please refer to the game list in main directory for the game names
+# performance analysis
+# chain = Chain()
+# analysis_list = []
+# for name in games:
+#     print("name:", name)
+#     start = time.time()
+#     e, running_time= chain.analysis_chain(name=name)
+#     if e:
+#         print("error")
+#         continue
+
+#     data = {
+#         'name': name,
+#         'running_time': running_time,
+#     }
+#     analysis_list.append(data)
+
+# for data in analysis_list:
+#     print(data)
+
+# running time of the model
+# chain = Chain()
+# reslist = []
+# for name in games:
+#     print("name:", name)
+#     e, list_docs, res, bot_res, int_score, int_bot_score = chain.eval_chain(name=name) # list_docs: document, res: our model's result, bot_res: bot result for same input, bot_score: bot relative score
+#     if e:
+#         print("error")
+#         continue
+
+#     print("our int_score:", int_score)
+#     print("bot int_score:", int_bot_score)
+
+#     data = {
+#         'name': name,
+#         'score': int_score,
+#         'bot_score': int_bot_score,
+#         'running_time': running_time,
+#     }
+#     reslist.append(data)
+
+# output bot result
+# list = []
+# chain = Chain()
+# for name in games:
+#     print("name:", name)
+#     e, list_docs, res, bot_res, int_score, int_bot_score = chain.eval_chain(name=name) # list_docs: document, res: our model's result, bot_res: bot result for same input, bot_score: bot relative score
+#     data = {
+#         'name': name,
+#         'bot_result': bot_res,  
+#     }
+#     print(data)
