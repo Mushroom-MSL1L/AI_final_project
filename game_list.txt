@@ -1,0 +1,44 @@
+                                   Game
+0                       Forza Horizon 4
+1              The Witcher 3: Wild Hunt
+2                        Cyberpunk 2077
+3                            ELDEN RING
+4                             Destiny 2
+5                             Nine Sols
+6                      Counter-Strike 2
+7                        World of Tanks
+8                    NARAKA: BLADEPOINT
+9                   PUBG: BATTLEGROUNDS
+10                        Left 4 Dead 2
+11                          Half-Life 2
+12                ARK: Survival Evolved
+13                             Among Us
+14       Tom Clancy's Rainbow Six Siege
+15                                 DayZ
+16                              FIFA 22
+17                             NBA 2K24
+18  DEAD OR ALIVE Xtreme Venus Vacation
+19                             Terraria
+20                        Albion Online
+21          Need for Speed: Hot Pursuit
+22                     Dead by Daylight
+23                             Palworld
+24                  Cities: Skylines II
+25                             Hades II
+26               Yu-Gi-Oh!  Master Duel
+27                            Undertale
+28                            Fall Guys
+29                        Geometry Dash
+30                Resident Evil Village
+31                                 Raft
+32                           The Forest
+33                 GUILTY GEAR -STRIVE-
+34                             Warframe
+35                      Baldur's Gate 3
+36                         Apex Legends
+37                       Stardew Valley
+38            Assassin's Creed Valhalla
+39                      Hogwarts Legacy
+40          Tom Clancy's The Division 2
+41                        Halo Infinite
+42                Detroit: Become Human

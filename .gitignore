@@ -1,0 +1,8 @@
+__pycache__/
+data/
+llama.cpp/
+llama/
+game_list.txt
+game_review.txt
+.chainlit/
+chainlit.md
