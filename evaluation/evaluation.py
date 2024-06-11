@@ -94,7 +94,6 @@ class TFIDF() :
             print("There is no data to compare.")
             return [0, 0, 0, 0, 0, 0]
         normed_row_data = self.take_nomarlize(row_data)
-        print("normed_row_data:", normed_row_data)
         scores = self.average_tfidf
         
         cosim = cosine_similarity([scores], [normed_row_data])
@@ -114,15 +113,13 @@ class TFIDF() :
     def conpare_with_cosine_similarity(self, row_data, challenger_data):
         data_cos = self.cosine_similarity(row_data)
         challenger_cos = self.cosine_similarity(challenger_data)
-        print("data_cos:", data_cos)
-        print("challenger_cos:", challenger_cos)
         if data_cos > challenger_cos:
             print("Our model is better.")
         elif data_cos < challenger_cos:
             print("Challenger model is better.")
 
     
-    def signed_rank_test (self, model_evaluations, challenger_evaluations, alpha=0.1):
+    def signed_rank_test (self, model_evaluations, challenger_evaluations, alpha=0.2):
         n = len(model_evaluations)
         if n != len(challenger_evaluations) or n == 0:
             return None
@@ -137,7 +134,12 @@ class TFIDF() :
         for i in range(n):
             signed_ranks.append(model_evaluations[i] - challenger_evaluations[i])
         signed_ranks = np.array(signed_ranks)
-        positive_ranks = np.sum(signed_ranks > 0)
+        positive_ranks = 0
+        if (signed_ranks[0] > 0) : 
+            positive_ranks += 1
+        for i in range(1, n):
+            if signed_ranks[i] < 0:
+                positive_ranks += 1
         zero_ranks = np.sum(signed_ranks == 0)
         if zero_ranks == n:
             print("The difference is not statistically significant.")

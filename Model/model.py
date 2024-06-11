@@ -2,8 +2,8 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain_fireworks import Fireworks
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain_core.output_parsers import StrOutputParser
 
 import pickle
 import torch
@@ -41,8 +41,9 @@ class LLM:
             verbose=True,                               #output
             top_p=1,                                    #prevent model from generating low probability tokens  
             top_k=40,                                   #top k tokens for next token prediction    
+            temparature = 0.0,                          #temparature for sampling
         )
-        
+
         self.cache_path = "cache.pkl"
         self.cache = {}
         self.set_cache_path()
@@ -51,6 +52,14 @@ class LLM:
     def __call__(self, question, prompt, document, name):
         return self.game_output(question=question, prompt=prompt, document=document, name=name)
     
+    def fireworks(self, prompt):
+        bot = Fireworks(
+            model="accounts/fireworks/models/llama-v3-70b-instruct", # model path in the server
+            max_tokens=512,
+        )
+        response = bot(prompt)
+        return response
+
     def set_cache_path(self):
         if not os.path.exists(self.cache_path):
             self.save_cache()

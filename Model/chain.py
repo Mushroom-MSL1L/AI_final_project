@@ -2,31 +2,39 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from dotenv import load_dotenv
+import re
+import time
 
 from .model import LLM
+from .template import Template
 from DB import db
 
 class Chain:
     def __init__(self):
         self.llm = LLM()
         self.db = db()
-        self.eval = None
-        self.config = {}
+        self.template = Template()
 
         self.config = {
             "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
-                         'storyline', 'difficulty', 'controls', 'price', 'player'],
+                         'storyline', 'difficulty', 'controls', 'price'],
             "total_document_length": 3800 if self.llm.device['gpu'] else 900,
             "add_review_number": 1000, 
             "max_docs_length": 300 if self.llm.device['gpu'] else 90,
         }
+        if self.llm.device['gpu']: config["key_words"].append('player')
+        load_dotenv()
 
     def __call__(self, name):
         # get reviews from db and set prompt for model
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
-        result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
+        error, error_message, result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
+        
+        if error:
+            return error_message
         return result
 
     def update_db(self, name):
@@ -89,45 +97,87 @@ class Chain:
 
     def set_prompt(self):
         # Define the prompt template for the model        
-        template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews. <</SYS>>
-            Reviews: {game_reviews}
-            Prompt: Briefly tell me about the game {name} separating with different categories. [/INST]
-            Response: Insert a line break between each category.
-            """
-        
+        template = self.template.get_template() if self.llm.device['gpu'] else self.template.get_cpu_template()
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return template, prompt
     
     def output_chain(self, name, id, enoughreview, document, template, prompt):
         # Define the chain of models to be used
-        if id == False:
-            return "game not found on Steam. Please check the game name."
-        elif document == '':
-            return "No reviews found for the game."
-        elif not enoughreview:
-            return "Not enough reviews found for the game."
-        
-        question = template.format(game_reviews=document, name=name)
-        result = self.llm(question, prompt, document, name)
-        return result
 
-    def test_chain():
-        # test chain, not for practical use
-        games = ['Forza Horizon 4', 'Cyberpunk 2077', 'The Witcher 3: Wild Hunt', 'Grand Theft Auto V', 
-                 'Red Dead Redemption 2', 'The Legend of Zelda: Breath of the Wild', 'The Elder Scrolls V: Skyrim', 
-                 'The Last of Us Part II', 'God of War', 'Horizon Zero Dawn']
+        error = False
+        error_message = None
+        result = None
         
-        testChain = Chain()
-        for game in games:
-            response = testChain(game)
-            print("{game}: ", game, response)
+        if id == False:
+            error = True
+            error_message = "game not found on Steam. Please check the game name."
+        elif document == '':
+            error = True
+            error_message = "No reviews found for the game."
+        elif not enoughreview:
+            error = True
+            error_message = "Not enough reviews found for the game."
+        else:
+            question = template.format(game_reviews=document, name=name)
+            result = self.llm(question, prompt, document, name)
+
+        return error, error_message, result
+
+    def extract_num(self, s):
+        match = re.search(r'\d+', s)
+        if match:
+            return int(match.group())
+        else:
+            return None
 
     def eval_chain(self, name):
+        # Evaluate the model's output and the bot's output
+
         enoughreview, id =  self.update_db(name) # update db and add reviews
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
-        result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
-        return list_docs, result
+        
+        # get our model's output
+        e, error_message, result = self.output_chain(name=name, id=id, enoughreview=enoughreview, document=str_docs, template=template, prompt=prompt) # our result
+
+        # if error return error message
+        if e:
+            return error_message, list_docs, result, None, None, None
+
+        # get the bot's output with same input
+        str_prompt = prompt.format(name=name, game_reviews=str_docs) # prompt for bot
+        bot_result = self.llm.fireworks(str_prompt)
+
+        # evaluate the model's output
+        str_score_prompt = self.score_prompt(name, str_docs, result) # evaluate our model's score
+        score = self.llm.fireworks(str_score_prompt)
+        int_score = self.extract_num(score)
+        
+        # evaluate the bot's output
+        str_bot_score_prompt = self.score_prompt(name, str_docs, bot_result) # evaluate bot's score
+        bot_score = self.llm.fireworks(str_bot_score_prompt)
+        int_bot_score = self.extract_num(bot_score)
+
+        return e, list_docs, result, bot_result, int_score, int_bot_score
+
+    def analysis_chain(self, name):
+        enoughreview, id =  self.update_db(name) # update db and add reviews
+        template, prompt = self.set_prompt()
+        str_docs, list_docs = self.set_document(name)
+        
+        # get our model's output
+        start = time.time()
+        e, error_message, result = self.output_chain(name=name, id=id, enoughreview=enoughreview, document=str_docs, template=template, prompt=prompt) # our result
+        running_time = time.time() - start
+
+        return e, running_time
+
+    def score_prompt(self, name, document, model_output):
+        # Define the prompt template for the score evaluation
+        template = self.template.get_only_score_template()
+        prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name', 'model_output'])
+        str_score_prompt = prompt.format(name=name, game_reviews=document, model_output=model_output)
+        return str_score_prompt
 
 #test LLM
 # prompt = """You are a helpful AI assistant.
