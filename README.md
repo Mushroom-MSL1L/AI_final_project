@@ -104,4 +104,4 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-### Access supplement.md to know more details
+### Access [supplement.md](https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM/blob/dev.ver1/supplement.md) to know more details
