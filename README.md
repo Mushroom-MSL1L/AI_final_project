@@ -19,10 +19,11 @@
     * clone this project from GitHub, which means you run following command in your terminal, `git clone https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM.git`
     * run `pip install -r requirements.txt`
 * model
-    * This repo do not provide model, you need to download a one. 
-    * Download ```llama-2-7B.Q4_k_M model``` as ```gguf``` file from [here](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf), so that you don't need to change any code.
-    * Rename the file name as `llama-2-7b-chat.Q4_K_M.gguf`.
-    * Make a folder whose name is `llama.cpp` under ```Model``` folder. And put your gguf file in it. There should has a path like ```NYCU-AI-Final-Project-STEAM\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
+    * This repo do not provide model, you need to download a one.
+    * Make a folder whose name is `llama.cpp` under ```Model``` folder. And cd to `llama.cpp` folder.
+    * Download ```llama-2-7B.Q4_k_M model``` as ```gguf``` file by running this command `huggingface-cli download TheBloke/Llama-2-7b-Chat-GGUF llama-2-7b-chat.Q4_K_M.gguf --local-dir . --local-dir-use-symlinks False` 
+    * Rename the file name as `llama-2-7b-chat.Q4_K_M.gguf` if needed.
+    * There should has a path like ```NYCU-AI-Final-Project-STEAM\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
     * More information can take a look at `supplement.md`.
 ### How to use 
 * cd to this folder `NYCU-AI-Final-Project-STEAM`
