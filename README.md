@@ -18,8 +18,8 @@
     * We are recommend to use `python 3.10` or higher.
 * packages 
     * clone this project from GitHub, which means you run following command in your terminal, `git clone https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM.git`
-    * cd to the project folder `NYCU-AI-Final-Project-STEAM`
     * run `pip install -r requirements.txt`
+    * install pytorch from this url `https://pytorch.org/get-started/locally/`. Choose correct packege for your need.
 * model
     * This repo do not provide model, you need to download a one. 
     * Download ```llama-2-7B.Q4_k_M model``` as ```gguf``` file from [here](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf), so that you don't need to change any code.
