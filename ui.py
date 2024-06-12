@@ -5,6 +5,11 @@ import asyncio
 
 chain = chain.Chain()
 
+@cl.author_rename
+def rename(orig_author: str):
+    rename_dict = {"Chatbot": "STEAM"}
+    return rename_dict.get(orig_author)
+
 @cl.on_chat_start
 async def main():
     res = await cl.AskUserMessage(content="Welcome to Steam Top Expert Analysis Machine (STEAM)!\nPlease type your name.", timeout=30).send()
