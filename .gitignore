@@ -7,3 +7,4 @@ game_review.txt
 .chainlit/
 chainlit.md
 Model/cache.pkl
+.venv/
