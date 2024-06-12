@@ -18,8 +18,8 @@ class Chain:
 
         self.config = {
             "keywords": ['size', 'graphic', 'gameplay', 'sound', 'target',
-                         'storyline', 'difficulty', 'controls', 'price'],
-            "total_document_length": 3800 if self.llm.device['gpu'] else 900,
+                         'storyline', 'difficulty', 'controls', 'price'], # keywords for reviews
+            "total_document_length": 3800 if self.llm.device['gpu'] else 900, # total number of tokens in documents
             "add_review_number": 1000, 
             "max_docs_length": 300 if self.llm.device['gpu'] else 90,
         }

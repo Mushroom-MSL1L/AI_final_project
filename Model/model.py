@@ -20,10 +20,10 @@ class LLM:
         }
 
         self.config = {
-            "max_tokens": 1024,
-            "n_ctx": 4096 if self.device['gpu'] else 1024,
-            "n_batch": 512 if self.device['gpu'] else 8,
-            "n_gpu_layers": -1 if self.device['gpu'] else None,
+            "max_tokens": 1024, # output terminates as the model reaches the max token
+            "n_ctx": 4096 if self.device['gpu'] else 1024, # context window, input length
+            "n_batch": 512 if self.device['gpu'] else 8, # batch size
+            "n_gpu_layers": -1 if self.device['gpu'] else None, # number of layers
         }
 
         self.model_path = r"Model/llama.cpp/llama-2-7b-chat.Q4_K_M.gguf"

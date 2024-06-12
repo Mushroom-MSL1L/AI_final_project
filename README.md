@@ -17,7 +17,8 @@
 * programming language
     * We are recommend to use `python 3.10` or higher.
 * packages 
-    * cd to this folder `AI_final_project_SteamHotCommentFetcher\`
+    * clone this project from GitHub, which means you run following command in your terminal, `git clone https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM.git`
+    * cd to the project folder `NYCU-AI-Final-Project-STEAM`
     * run `pip install -r requirements.txt`
 * model
     * This repo do not provide model, you need to download a one. 
@@ -26,7 +27,7 @@
     * Make a folder whose name is `llama.cpp` under ```Model``` folder. And put your gguf file in it. There should has a path like ```AI_final_project_SteamHotCommentFetcher\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
     * More information can take a look at `supplement.md`.
 ### How to use 
-* cd to this folder `AI_final_project_SteamHotCommentFetcher\`
+* cd to this folder `NYCU-AI-Final-Project-STEAM`
 * run `chainlit run ui.py -w` in terminal
 * open your browser and go to `http://localhost:8000`
 * Type one game name you want to analysis
@@ -42,7 +43,7 @@
 * Upload `STEAM.ipynb` to google Colab notebook.
 * Run the code one by one in the notebook.
     * `Download llm model` part may need 30 seconds
-    * `llama-cpp-python GPU ver. install` part may need 10 minutes
+    * `llama-cpp-python GPU ver. install` part may need 20 minutes
 * In `Run` part you need to update `add-authtoken` with your own token.
     * go to [ngrok](https://ngrok.com/) and sign up.
     * get your token from [your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)
@@ -59,6 +60,20 @@
         * "The Witcher 3: Wild Hunt"
 * wait for a while, you will see the result.
 
+## Hyperparameter
+### model.py configuration
+  In `class LLM`, you are able to change some parameter in `self.config`.
+  * `max_token`: model terminates its output as it reaches the max token.
+  * `n_ctx`: context window, input length for the llm. Here are the parameters for both the GPU and the CPU.
+  * `n_batch`: batch size for the model. Here are the parameters for both the GPU and the CPU.
+  * `n_gpu_layers`: num of gpu_layers for the model. Available only for GPU.
+### chain.py configuration
+ In `class chain` in chain.py you are able to change some parameters in `self.config`. 
+* `keywords`: keywords for retrieving. But, you have to concider the max token of input if you add more.
+* `total_document_length`: For max total_document tokens in prompt. 
+* `total_document_length + template_prompt` (approx. 40 words) cannot exceed `n_ctx` in `Model/LLM`
+* `max_docs_length`: For max document length for each document in prompt.`max_docs_length * num_of_keywords` must less than `total_document_length` at least.
+* `add_review_number`: the number of review you want to add in vectordatabse for each games.
 
 ### Access supplement.md to know more details
 
