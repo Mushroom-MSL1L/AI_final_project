@@ -17,6 +17,7 @@
     * We are recommend to use `python 3.10` or higher.
 * packages 
     * clone this project from GitHub, which means you run following command in your terminal, `git clone https://github.com/Mushroom-MSL1L/NYCU-AI-Final-Project-STEAM.git`
+    * cd to this folder `NYCU-AI-Final-Project-STEAM`
     * run `pip install -r requirements.txt`
 * model
     * This repo do not provide model, you need to download a one.
@@ -26,7 +27,7 @@
     * There should has a path like ```NYCU-AI-Final-Project-STEAM\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
     * More information can take a look at `supplement.md`.
 ### How to use 
-* cd to this folder `NYCU-AI-Final-Project-STEAM`
+* make sure your current folder is `NYCU-AI-Final-Project-STEAM`.
 * run `chainlit run ui.py -w` in terminal
 * open your browser and go to `http://localhost:8000`
 * Type one game name you want to analysis
