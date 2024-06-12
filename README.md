@@ -5,7 +5,6 @@
 * ***Llama 2 is licensed under the LLAMA 2 Community License, Copyright (c) Meta Platforms, Inc. All Rights Reserved.***
 
 * The project is a final project for NYCU CS AI course.
-* Using LLM to generate the comments of the steam game.
 
 ## Introduction
 * It's a project that can analysis the hot comments of the steam game.
@@ -24,7 +23,7 @@
     * This repo do not provide model, you need to download a one. 
     * Download ```llama-2-7B.Q4_k_M model``` as ```gguf``` file from [here](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q4_K_M.gguf), so that you don't need to change any code.
     * Rename the file name as `llama-2-7b-chat.Q4_K_M.gguf`.
-    * Make a folder whose name is `llama.cpp` under ```Model``` folder. And put your gguf file in it. There should has a path like ```AI_final_project_SteamHotCommentFetcher\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
+    * Make a folder whose name is `llama.cpp` under ```Model``` folder. And put your gguf file in it. There should has a path like ```NYCU-AI-Final-Project-STEAM\Model\llama.cpp\llama-2-7b-chat.Q4_K_M.gguf```
     * More information can take a look at `supplement.md`.
 ### How to use 
 * cd to this folder `NYCU-AI-Final-Project-STEAM`
@@ -36,6 +35,7 @@
         * "Forza Horizon 4"
         * "Forza Horizon 5"
         * "The Witcher 3: Wild Hunt"
+    * get more games from `game_list.txt`
 * wait for a while, you will see the result.
 
 ## On Colab
@@ -58,6 +58,7 @@
         * "Forza Horizon 4"
         * "Forza Horizon 5"
         * "The Witcher 3: Wild Hunt"
+    * get more games from `game_list.txt`
 * wait for a while, you will see the result.
 
 ## Hyperparameter
@@ -69,13 +70,15 @@
   * `n_gpu_layers`: num of gpu_layers for the model. Available only for GPU.
 ### chain.py configuration
  In `class chain` in chain.py you are able to change some parameters in `self.config`. 
-* `keywords`: keywords for retrieving. But, you have to concider the max token of input if you add more.
-* `total_document_length`: For max total_document tokens in prompt. 
-* `total_document_length + template_prompt` (approx. 40 words) cannot exceed `n_ctx` in `Model/LLM`
-* `max_docs_length`: For max document length for each document in prompt.`max_docs_length * num_of_keywords` must less than `total_document_length` at least.
-* `add_review_number`: the number of review you want to add in vectordatabse for each games.
-
-### Access supplement.md to know more details
+* **`keywords`**: 
+  * keywords for retrieving. But, you have to concider the max token of input if you add more.
+* **`total_document_length`**: 
+  * For max total_document tokens in prompt. 
+  `total_document_length + template_prompt (approx. 40 words)` cannot exceed `n_ctx` in `Model/LLM`
+* **`max_docs_length`**: 
+  * For max document length for each document in prompt.`max_docs_length * num_of_keywords` must less than `total_document_length` at least.
+* **`add_review_number`**: 
+  * the number of review you want to add in vectordatabse for each games.
 
 ## Contributors ✨
 
@@ -99,3 +102,5 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+### Access supplement.md to know more details
