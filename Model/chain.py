@@ -33,7 +33,7 @@ class Chain:
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
         error, error_message, result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
-        result = self.post_process(result)
+        result = self.add_newline_before_bold(result)
 
         if error:
             return error_message
@@ -148,6 +148,18 @@ class Chain:
         else:
             return None
 
+    def add_newline_before_bold(self, text):
+        # Add a newline before bold text in the text
+        pattern = r'(?<!\n)(\*\*.*?\*\*)'
+
+        matches = re.finditer(pattern, text)
+
+        for match in reversed(list(matches)):
+            start_idx, end_idx = match.span()
+
+            text = text[:start_idx] + '\n' + text[start_idx:end_idx] + text[end_idx:]
+        return text
+
     def eval_chain(self, name):
         # Evaluate the model's output and the bot's output
         # return: {
@@ -213,11 +225,6 @@ class Chain:
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name', 'model_output'])
         str_score_prompt = prompt.format(name=name, game_reviews=document, model_output=model_output)
         return str_score_prompt
-
-    def post_process(self, text):
-        # Post-process the model's output
-        # return: str
-        return re.sub(r'\s{2,}', '\n', text)
 
 #test LLM
 # prompt = """You are a helpful AI assistant.
