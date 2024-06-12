@@ -33,32 +33,48 @@ class Template:
         return template
 
     def set_template(self):
-        template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews.
-                Output within the 512 words limit <</SYS>>
-                Reviews: {game_reviews}
-                Prompt: Briefly tell me about the game {name} separating with different categories. example: graphic, gameplay.
-                Example Response: 
-                    Introduction: -
-                    
-                    Graphics: Looks fantastic and lets you drive fast what more could you want? cheap and awesome graphic (8/10)
-                    
-                    Sounds: Trash (2/10)
-                    
-                    Gameplay: Fun multiplayer and single-player game with lots to do (9/10)
-                    
-                    Story: Trash (3/10)
-                    
-                    OST Music: Trash (2/10)
-                    
-                    Recommendation: Great game, highly recommend to play with friends (8/10)
-                    
-                    Bugs: Has bugs that should not be present in a game of this size or age (6/10)
-                    
-                    Price: A little overpriced, recommend waiting for discounts (7/10)
-                    
-                    Any others: -
+        template = """ 
+                    <s>[INST] <<SYS>> Output within the 512 words limit. <</SYS>>
 
-                    Overall: - [/INST]
+                    Reviews: {game_reviews}
+
+                    Prompt: Based on the provided reviews, briefly tell me about the game, {name}. Ensure that your response is informative, highlights key points from the reviews, and is organized into relevant categories.
+
+                    Suggested Categories(feel free to adapt as needed):
+                        Introduction:
+                        Brief overview of the game
+                        Genre and main premise
+                        
+                        Gameplay:
+                        Core mechanics
+                        Controls and objectives
+                        Unique features
+
+                        Graphics and Sound:
+                        Visual elements (art style, animation quality)
+                        Soundtrack and audio quality
+
+                        Storyline:
+                        Plot summary
+                        Main characters and setting
+                        
+                        Multiplayer/Online Features:
+                        Multiplayer modes
+                        Online functionalities
+                        
+                        User Experience:
+                        Interface and performance
+                        Replayability
+                        
+                        Pros and Cons:
+                        Strengths
+                        Weaknesses
+                        
+                        Overall:
+                        General summary
+                        Final thoughts
+                    
+                    Response: [/INST]
                 """
         return template
 
