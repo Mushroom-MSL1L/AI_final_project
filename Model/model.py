@@ -20,7 +20,7 @@ class LLM:
         }
 
         self.config = {
-            "max_tokens": 512, # output terminates as the model reaches the max token
+            "max_tokens": 1024, # output terminates as the model reaches the max token
             "n_ctx": 4096 if self.device['gpu'] else 1024, # context window, input length
             "n_batch": 512 if self.device['gpu'] else 8, # batch size
             "n_gpu_layers": -1 if self.device['gpu'] else None, # number of layers

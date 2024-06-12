@@ -33,7 +33,8 @@ class Chain:
         template, prompt = self.set_prompt()
         str_docs, list_docs = self.set_document(name)
         error, error_message, result = self.output_chain(name, id, enoughreview, str_docs, template, prompt)
-        
+        result = self.post_process(result)
+
         if error:
             return error_message
         return result
@@ -106,7 +107,7 @@ class Chain:
         #    template: str,
         #    prompt: PromptTemplate
         # }        
-        template = self.template.get_template() if self.llm.device['gpu'] else self.template.get_cpu_template()
+        template = self.template.get_template()
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name'])
         return template, prompt
     
@@ -212,6 +213,11 @@ class Chain:
         prompt = PromptTemplate(template=template, input_variables=['game_reviews', 'name', 'model_output'])
         str_score_prompt = prompt.format(name=name, game_reviews=document, model_output=model_output)
         return str_score_prompt
+
+    def post_process(self, text):
+        # Post-process the model's output
+        # return: str
+        return re.sub(r'\s{2,}', '\n', text)
 
 #test LLM
 # prompt = """You are a helpful AI assistant.

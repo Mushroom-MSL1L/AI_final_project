@@ -3,7 +3,6 @@ from langchain_core.prompts import PromptTemplate
 class Template:
     def __init__(self):
         self.template = self.set_template()
-        self.cpu_template = self.cpu_template()
         self.score_template = self.set_score_template()
         self.only_score_template = self.set_onlyscore_template()
         self.clearformat_template = self.clearformat_template()
@@ -11,9 +10,6 @@ class Template:
     def get_template(self):
         return self.template
 
-    def get_cpu_template(self):
-        return self.cpu_template
-    
     def get_score_template(self):
         return self.score_template
 
@@ -23,42 +19,17 @@ class Template:
     def get_clearformat_template(self):
         return self.clearformat_template
 
-    def cpu_template(self):
-        template = """ [INST] <<SYS>> Ensure that your response is informative 
-                and based on the reviews. Output within the 256 words limit <</SYS>>
-                Reviews: {game_reviews}
-                Prompt: Briefly tell me about the game, {name}, with different categories.
-                Response: Break line for each categories [/INST]
-                """
-        return template
-
     def set_template(self):
-        template = """ [INST] <<SYS>> Ensure that your response is informative and based on the reviews.
-                Output within the 512 words limit <</SYS>>
-                Reviews: {game_reviews}
-                Prompt: Briefly tell me about the game {name} separating with different categories. example: graphic, gameplay.
-                Example Response: 
-                    Introduction: -
+        template = """ 
+                    <s>[INST] <<SYS>> Output within the 512 words limit. <</SYS>>
                     
-                    Graphics: Looks fantastic and lets you drive fast what more could you want? cheap and awesome graphic (8/10)
+                    Game Reviews: {game_reviews}
                     
-                    Sounds: Trash (2/10)
+                    Prompt: Briefly tell me about {name} with the game reviews provided. Ensure that your response is informative, highlights key points from the reviews, and is organized into relevant categories.
                     
-                    Gameplay: Fun multiplayer and single-player game with lots to do (9/10)
+                    Output Format: Indention for end of each category. Few sentences for each category. We are looking for a simple category name and well-structured response. Bold the category names.
                     
-                    Story: Trash (3/10)
-                    
-                    OST Music: Trash (2/10)
-                    
-                    Recommendation: Great game, highly recommend to play with friends (8/10)
-                    
-                    Bugs: Has bugs that should not be present in a game of this size or age (6/10)
-                    
-                    Price: A little overpriced, recommend waiting for discounts (7/10)
-                    
-                    Any others: -
-
-                    Overall: - [/INST]
+                    Response: [/INST]
                 """
         return template
 
@@ -239,8 +210,6 @@ class Template:
                     Overall, Nine Sols seems to be a game that can evoke strong emotions from players, either making them feel like a badass or like they're the worst player ever.
                     '''
                     Score: 10
-
-                    2. 
 
                 Score:
                 10: The statement is clear, easy to read, and understand.

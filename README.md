@@ -39,7 +39,7 @@
     * get more games from `game_list.txt`
 * wait for a while, you will see the result.
 
-## On Colab
+## On Colab (Recommend)
 ### How to set up
 * Upload `STEAM.ipynb` to google Colab notebook.
 * Run the code one by one in the notebook.
