@@ -6,3 +6,4 @@ game_list.txt
 game_review.txt
 .chainlit/
 chainlit.md
+Model/cache.pkl
