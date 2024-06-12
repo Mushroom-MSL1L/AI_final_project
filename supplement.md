@@ -18,3 +18,14 @@
 * And the following instructions can look this link. [Llama 2 models for text embedding](https://medium.com/@liusimao8/using-llama-2-models-for-text-embedding-with-langchain-79183350593d)
     * note : If your are using MAC, in the convertion step, it may generate gguf file not bin file. And you need to ```./quantize ./models/llama-2-7b/llama-2-7b-7B-F32.gguf models/llama-2-7b/llama-2-7b-7B-F32-q4_0.gguf q4_0
 ``` rather than ```./quantize ./models/llama-2-7b/llama-2-7b-7B-F32.bin models/llama-2-7b/llama-2-7b-7B-F32-q4_0.bin q4_0```
+## How to Use Fireworks API
+* Create the `.env` file, in which you write your Fireworks API from ``https://fireworks.ai/api-keys`` Write your API KEY as,  `FIREWORKS_API_KEY="Your_API_KEY"`
+* You are able to call function `fireworks(prompt: str)` by using `class LLM` in `Model` directory. Input and Output are all in string form. 
+
+## How you find recommend games
+* Access `game_list.txt`
+* All games here are available in our STEAM system!!
+
+## How to Reset cache
+* Since we use cache to accelerate output, it may have same result for the same game name.
+* If you are not satisfied with our STEAM's output,delete `cache.pkl` file. Then, all memoried cache is reset.

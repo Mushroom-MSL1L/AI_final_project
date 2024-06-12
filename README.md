@@ -59,6 +59,9 @@
         * "The Witcher 3: Wild Hunt"
 * wait for a while, you will see the result.
 
+
+### Access supplement.md to know more details
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
