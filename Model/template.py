@@ -37,7 +37,17 @@ class Template:
                 Output within the 512 words limit <</SYS>>
                 Reviews: {game_reviews}
                 Prompt: Briefly tell me about the game {name} separating with different categories. example: graphic, gameplay.
-                Response: Break line for each categories [/INST]
+                Example Response: 
+                    Introduction: -
+                    Graphics: Looks fantastic and lets you drive fast what more could you want? cheap and awesome graphic (8/10)
+                    Engine Sounds: Trash (2/10)
+                    Gameplay: Fun multiplayer and single-player game with lots to do (9/10)
+                    Story: Trash (3/10)
+                    OST Music: Trash (2/10)
+                    Recommendation: Great game, highly recommend to play with friends (8/10)
+                    Bugs and Glitches: Has bugs that should not be present in a game of this size or age (6/10)
+                    Price: A little overpriced, recommend waiting for discounts (7/10)
+                    Overall: - [/INST]
                 """
         return template
 
